@@ -59,52 +59,86 @@ void MainWindow::delteInputListView(QString text)
 void MainWindow::onItemChanged_Out(QTreeWidgetItem *item, int cloumn)
 {
     qDebug() <<item->text(cloumn) <<"Cl:"<<cloumn<<" CK:"<<item->checkState(0)<<" child:"<<item->childCount();
-    if(item->childCount() > 0)//根节点,全部信号
-    {
-        if(item->checkState(0) == Qt::Checked)
-        {
-            output_Model->clear();
-            for(int i = 0;i < item->childCount();i++)
-            {
-                //设置tree所有子节点被选中
-                item->child(i)->setCheckState(cloumn,Qt::Checked);
 
-                //这里不用appendRow,因为设置了checkstate,系统自动调用onItemChanged_In,执行子节点
-                //设置list view 显示所有信号
-                //QString txt = item->child(i)->text(cloumn);
-                //QStandardItem *sd_item = new QStandardItem(txt);
-                //input_Model->appendRow(sd_item);
-            }
-        }
-        else if(item->checkState(0) == Qt::Unchecked)
+    if(item->checkState(0) == Qt::Checked)
+    {
+        //output_Model->clear();
+        QString txt = item->text(cloumn);
+        QStandardItem *sd_item = new QStandardItem(txt);
+        output_Model->appendRow(sd_item);
+
+        for(int i = 0;i < item->childCount();i++)//根节点,全部信号
         {
-            output_Model->clear();
-            for(int i = 0;i < item->childCount();i++)
+            //设置tree所有子节点被选中
+            item->child(i)->setCheckState(cloumn,Qt::Checked);
+
+            //这里不用appendRow,因为设置了checkstate,系统自动调用onItemChanged_In,执行子节点
+            //设置list view 显示所有信号
+            //QString txt = item->child(i)->text(cloumn);
+            //QStandardItem *sd_item = new QStandardItem(txt);
+            //input_Model->appendRow(sd_item);
+        }
+
+        //父项根据所有子项的勾选状态设置勾选状态
+        auto parentItem = item->parent();
+        if(parentItem && (parentItem->checkState(0) != Qt::Checked))
+        {
+            auto friendCount = parentItem->childCount();
+            bool allFriendIsCheck = true;
+            for(int j = 0; j < friendCount; ++j)
             {
-                //设置tree所有子节点均未被选中
-                item->child(i)->setCheckState(cloumn,Qt::Unchecked);
+                if(parentItem->child(j)->checkState(0) != Qt::Checked)
+                {
+                    allFriendIsCheck = false;
+                    break;
+                }
+            }
+            if(allFriendIsCheck)
+            {
+                parentItem->setCheckState(0, Qt::Checked);
+            }
+            else
+            {
+                parentItem->setCheckState(0, Qt::PartiallyChecked);
             }
         }
     }
-    else//子节点,一个信号
+    else if(item->checkState(0) == Qt::Unchecked)
     {
-        if(item->checkState(0) == Qt::Checked)
-        {
-            QString txt = item->text(cloumn);
-            QStandardItem *sd_item = new QStandardItem(txt);
-            output_Model->appendRow(sd_item);
-            item->parent()->setCheckState(cloumn,Qt::PartiallyChecked);
+        auto childCount = item->childCount();
+        //设置子项相同勾选状态
+        for(int i = 0; i < childCount; ++i){
+            item->child(i)->setCheckState(0, Qt::Unchecked);
         }
-        else
+        if(cloumn < output_Model->rowCount())
         {
-            if(cloumn < output_Model->rowCount())
-            {
-                //删除listview的item
-                delteOutputListView(item->text(cloumn));
+            //删除listview的item
+            delteOutputListView(item->text(cloumn));
+        }
+        //父项根据所有子项的勾选状态设置勾选状态
+        auto parentItem = item->parent();
+        if(parentItem && (parentItem->checkState(0) != Qt::Unchecked)){
+            auto friendCount = parentItem->childCount();
+            bool allFriendIsUncheck = true;
+            for(int j = 0; j < friendCount; ++j){
+                if(parentItem->child(j)->checkState(0) != Qt::Unchecked){
+                    allFriendIsUncheck = false;
+                    break;
+                }
             }
-
+            if(allFriendIsUncheck){
+                parentItem->setCheckState(0, Qt::Unchecked);
+            } else{
+                parentItem->setCheckState(0, Qt::PartiallyChecked);
+            }
+        }
+    } else if(item->checkState(0) == Qt::PartiallyChecked){
+        auto parentItem = item->parent();
+        if(parentItem){ //设置父项相同勾选状态
+            parentItem->setCheckState(0, Qt::PartiallyChecked);
         }
     }
+
     ui->outputlistView->setModel(output_Model);
 }
 
@@ -112,55 +146,97 @@ void MainWindow::onItemChanged_Out(QTreeWidgetItem *item, int cloumn)
 void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
 {
     qDebug() <<item->text(cloumn) <<"Cl:"<<cloumn<<" CK:"<<item->checkState(0)<<" child:"<<item->childCount();
-    if(item->childCount() > 0)//根节点,全部信号
-    {
-        if(item->checkState(0) == Qt::Checked)
-        {
-            input_Model->clear();
-            for(int i = 0;i < item->childCount();i++)
-            {
-                //设置tree所有子节点被选中
-                item->child(i)->setCheckState(cloumn,Qt::Checked);
 
-                //这里不用appendRow,因为设置了checkstate,系统自动调用onItemChanged_In,执行子节点
-                //设置list view 显示所有信号
-                //QString txt = item->child(i)->text(cloumn);
-                //QStandardItem *sd_item = new QStandardItem(txt);
-                //input_Model->appendRow(sd_item);
-            }
-        }
-        else if(item->checkState(0) == Qt::Unchecked)
-        {
-            input_Model->clear();
-            for(int i = 0;i < item->childCount();i++)
-            {
-                //设置tree所有子节点均未被选中
-                item->child(i)->setCheckState(cloumn,Qt::Unchecked);
-            }
-        }
-    }
-    else//子节点,一个信号
+    if(item->checkState(0) == Qt::Checked)
     {
-        if(item->checkState(0) == Qt::Checked)
+        //output_Model->clear();
+        if(item->childCount() == 0)//只添加子节点
         {
             QString txt = item->text(cloumn);
             QStandardItem *sd_item = new QStandardItem(txt);
             input_Model->appendRow(sd_item);
-            //设置状态后会再调用一次itemchange
-            item->parent()->setCheckState(cloumn,Qt::PartiallyChecked);
         }
-        else if(item->checkState(0) == Qt::Unchecked)
+        for(int i = 0;i < item->childCount();i++)//根节点,全部信号
         {
-            if(cloumn < input_Model->rowCount())
-            {
-                //删除listview的item
-                delteInputListView(item->text(cloumn));
-            }
+            //设置tree所有子节点被选中
+            item->child(i)->setCheckState(cloumn,Qt::Checked);
 
+            //这里不用appendRow,因为设置了checkstate,系统自动调用onItemChanged_In,执行子节点
+            //设置list view 显示所有信号
+            //QString txt = item->child(i)->text(cloumn);
+            //QStandardItem *sd_item = new QStandardItem(txt);
+            //input_Model->appendRow(sd_item);
+        }
+
+        //父项根据所有子项的勾选状态设置勾选状态,点击父节点,会自动勾选子节点
+        auto parentItem = item->parent();
+        if(parentItem && (parentItem->checkState(0) != Qt::Checked))
+        {
+            auto friendCount = parentItem->childCount();
+            bool allFriendIsCheck = true;
+            for(int j = 0; j < friendCount; ++j)
+            {
+                if(parentItem->child(j)->checkState(0) != Qt::Checked)
+                {
+                    allFriendIsCheck = false;
+                    break;
+                }
+            }
+            if(allFriendIsCheck)
+            {
+                parentItem->setCheckState(0, Qt::Checked);
+            }
+            else
+            {
+                parentItem->setCheckState(0, Qt::PartiallyChecked);
+            }
         }
     }
+    else if(item->checkState(0) == Qt::Unchecked)
+    {
+        auto childCount = item->childCount();
+        //设置子项相同勾选状态
+        for(int i = 0; i < childCount; ++i){
+            item->child(i)->setCheckState(0, Qt::Unchecked);
+        }
+        if(cloumn < input_Model->rowCount())
+        {
+            //删除listview的item
+            delteInputListView(item->text(cloumn));
+        }
+        //父项根据所有子项的勾选状态设置勾选状态
+        auto parentItem = item->parent();
+        if(parentItem && (parentItem->checkState(0) != Qt::Unchecked))
+        {
+            auto friendCount = parentItem->childCount();
+            bool allFriendIsUncheck = true;
+            for(int j = 0; j < friendCount; ++j)
+            {
+                if(parentItem->child(j)->checkState(0) != Qt::Unchecked)
+                {
+                    allFriendIsUncheck = false;
+                    break;
+                }
+            }
+            if(allFriendIsUncheck)
+            {
+                parentItem->setCheckState(0, Qt::Unchecked);
+            } else{
+                parentItem->setCheckState(0, Qt::PartiallyChecked);
+            }
+        }
+    } else if(item->checkState(0) == Qt::PartiallyChecked)
+    {
+        auto parentItem = item->parent();
+        if(parentItem)
+        { //设置父项相同勾选状态
+            parentItem->setCheckState(0, Qt::PartiallyChecked);
+        }
+    }
+
     ui->inputlistView->setModel(input_Model);
 }
+
 
 void MainWindow::connectWidget()
 {
