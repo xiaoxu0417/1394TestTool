@@ -142,6 +142,46 @@ void MainWindow::onItemChanged_Out(QTreeWidgetItem *item, int cloumn)
     ui->outputlistView->setModel(output_Model);
 }
 
+void MainWindow::onInputDataChange(QString txt)
+{
+    qDebug()<<"data change :"<<txt;
+}
+
+void MainWindow::onInputDataFinished()
+{
+    qDebug()<<"data finish";
+}
+
+//删除指定的item
+void MainWindow::deleteListWidgetItem(QString text)
+{
+#if 1
+    int row=0;
+    QString line;
+    while(row<(ui->inputlistWidget->count()))
+    {
+        //line = ui->inputlistWidget->item(row)->text();
+        QListWidgetItem* pItem = ui->inputlistWidget->item(row);
+        line = pItem->text();
+        qDebug()<<line;
+        qDebug()<<ui->inputlistWidget->item(row);
+        if(text==line)
+        {
+            qDebug()<<"删除成功";
+            ui->inputlistWidget->takeItem(row);
+        }
+
+        row++;
+    }
+#else
+    if(row < ui->inputlistWidget->count() && row >= 0)
+    {
+        //删除
+        ui->inputlistWidget->takeItem(row);
+        qDebug()<<"del:"<<row;
+    }
+#endif
+}
 //输入tree widget事件处理
 void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
 {
@@ -155,6 +195,43 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             QString txt = item->text(cloumn);
             QStandardItem *sd_item = new QStandardItem(txt);
             input_Model->appendRow(sd_item);
+
+            //dataForm *nitem = new dataForm();
+            //ui->inputlistWidget->insertItem(0,txt);
+            QWidget *widget = new QWidget(ui->inputlistWidget);
+            QLabel *Label = new QLabel(widget);
+            //Label->setText(txt);
+            Label->setFrameShape(QFrame::Box);
+
+
+            QLineEdit *LineEdit = new QLineEdit(ui->inputlistWidget);
+            LineEdit->setText("xuzd");
+            //connect(LineEdit,SINGAL(LineEdit::on_lineEdit_textChanged(QString& )),this,SLOT(onInputDataChange()));
+            connect(LineEdit,SIGNAL(textChanged(QString)),this,SLOT(onInputDataChange(QString)));
+            //connect(LineEdit,SIGNAL(returnPressed()),this,SLOT(onInputDataFinished()));
+            connect(LineEdit,SIGNAL(editingFinished()),this,SLOT(onInputDataFinished()));
+
+            //创见水平布局
+            QHBoxLayout *horLayout = new QHBoxLayout;
+            horLayout->setContentsMargins(0, 0, 0, 0);
+            horLayout->setMargin(2);
+            horLayout->setSpacing(2);
+
+            horLayout->addWidget(Label,5);
+            //horLayout->addStretch(1);
+            horLayout->addWidget(LineEdit,1);
+            widget->setLayout(horLayout);
+
+            //将widget作为列表的item
+            QListWidgetItem *ITEM = new QListWidgetItem();
+            ITEM->setText(txt);
+
+            QSize size = ITEM->sizeHint();
+            ITEM->setSizeHint(QSize(size.width(), 40));
+            ui->inputlistWidget->addItem(ITEM);
+            widget->setSizeIncrement(size.width(), 40);
+            ui->inputlistWidget->setItemWidget(ITEM, widget);//添加项目,每个item应该自己是一个类
+
         }
         for(int i = 0;i < item->childCount();i++)//根节点,全部信号
         {
@@ -196,13 +273,15 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
     {
         auto childCount = item->childCount();
         //设置子项相同勾选状态
-        for(int i = 0; i < childCount; ++i){
+        for(int i = 0; i < childCount; ++i)
+        {
             item->child(i)->setCheckState(0, Qt::Unchecked);
         }
         if(cloumn < input_Model->rowCount())
         {
             //删除listview的item
-            delteInputListView(item->text(cloumn));
+            deleteListWidgetItem(item->text(cloumn));
+            //deleteListWidgetItem(cloumn);
         }
         //父项根据所有子项的勾选状态设置勾选状态
         auto parentItem = item->parent();
@@ -234,7 +313,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
         }
     }
 
-    ui->inputlistView->setModel(input_Model);
+    //ui->inputlistView->setModel(input_Model);
 }
 
 
@@ -390,3 +469,4 @@ void MainWindow::on_pushButton_clear_counting_clicked()
     }
     ui->lcdNumber_counting->display(0);
 }
+

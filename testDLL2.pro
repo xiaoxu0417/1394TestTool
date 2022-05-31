@@ -23,6 +23,7 @@ HEADERS += \
     mainwindow.h
 
 FORMS += \
+    dataform.ui \
     mainwindow.ui
 
 # Default rules for deployment.

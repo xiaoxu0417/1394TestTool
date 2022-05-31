@@ -8,6 +8,10 @@
 #include <QStandardItemModel>
 #include <qtimer.h>
 #include <QTime>
+#include "dataform.h"
+#include "QLabel"
+#include "QLineEdit"
+#include "QHBoxLayout"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,12 +29,18 @@ public:
 
     void delteInputListView(QString text);
     void delteOutputListView(QString text);
+    //删除指定的item
+    void deleteListWidgetItem(QString text);
+    //void deleteListWidgetItem(int row);
 
     void doTimerService();
 
 private slots:
     void onItemChanged_In(QTreeWidgetItem *item, int cloumn);
     void onItemChanged_Out(QTreeWidgetItem *item, int cloumn);
+    //总线数据变化
+    void onInputDataChange(QString txt);
+    void onInputDataFinished();
 
     void on_checkBox_stateChanged(int arg1);
 
