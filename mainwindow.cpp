@@ -12,8 +12,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    loadxml();
     //初始化input和output tree wiget
-    initTreeWiget();
+    //initTreeWiget();
 
     //绑定槽函数
     connectWidget();
@@ -337,10 +338,123 @@ void MainWindow::doTimerService()
     ui->lcdNumber_counting->display(strTime);
     qDebug()<<m_iTestTime;
 }
+
+void MainWindow::loadxml()
+{
+    //QString fullpath = "C:\\Users\\lxl\\Desktop\\1394.xml";
+    QString fullpath = "1394.xml";
+    QFile file(fullpath);
+    if(!file.open(QFile::ReadOnly))
+    {
+        //return QDomDocument();
+        qDebug()<<"open error ";
+        return;
+    }
+
+    QDomDocument doc;
+    QString errormessage;
+    if(!doc.setContent(&file,NULL,&errormessage))
+    {
+        file.close();
+        qDebug()<<"set error ";
+        return;
+    }
+
+    QStringList in_head;
+    in_head << tr("数据输入:");
+
+    //根节点:DataBase
+    QDomNode root = doc.documentElement();
+    QDomNode nodeICD = root.firstChild();
+
+    //auto item_root =  new TreeWidgetItemEx;
+    ui->inputtreeWidget->setHeaderLabels(in_head);
+
+    //item_root->addChild(item_root_in);
+
+    while(!nodeICD.isNull())
+    {
+        //遍历输入和输出
+        if(nodeICD.isElement())
+        {
+            QDomElement elemICD = nodeICD.toElement();
+            if(elemICD.attribute("type") == "input")
+            {
+                //遍历输入的各个子系统
+                QDomNodeList listSYS= elemICD.childNodes();
+                for(int i = 0; i < listSYS.size();i++)
+                {
+                    auto item_root_in = new TreeWidgetItemEx;
+                    QDomNode nodeSYS = listSYS.at(i);
+                    QDomElement elemSYS = nodeSYS.toElement();
+                    //每个子系统创建一个tree
+                    qDebug()<<elemSYS.attribute("sysname");
+
+                    item_root_in->setText(0, elemSYS.attribute("sysname"));
+                    item_root_in->setCheckState(0, Qt::Unchecked);
+
+                    if(nodeSYS.isElement())
+                    {
+                        //遍历输入的当前子系统的各个信号
+                        QDomNodeList listfield= nodeSYS.childNodes();
+                        for(int j = 0;j < listfield.size();j++)
+                        {
+                            QDomNode nodefield = listfield.at(j);
+                            QDomElement elemfield = nodefield.toElement();
+                            //获取名称
+                            QString FieldName = elemfield.attribute("stFieldName");
+                            //获取位域范围
+                            QString uiBitBegin = elemfield.attribute("uiBitBegin");
+                            QString uiBitEnd   = elemfield.attribute("uiBitEnd");
+                            //获取类型
+                            QString dataType =  elemfield.attribute("dataType");
+                            //获取字
+                            QString stByteOffset = elemfield.attribute("stByteOffset");
+                            //获取意义
+                            QDomNodeList listValue = nodefield.childNodes();
+                            for(int j =0;j<listValue.size();j++)
+                            {
+                                QDomNode nodeValue = listValue.at(j);
+                                QDomElement elemValue = nodeValue.toElement();
+                                QString meaning = elemValue.attribute("strMean");
+                                QString value = elemValue.attribute("strValue");
+                                qDebug()<<meaning<<" "<<value;
+                            }
+                            qDebug()<<FieldName + " " + uiBitBegin + " " + uiBitEnd + " " + dataType +" "+ stByteOffset;
+                            auto ch = new TreeWidgetItemEx();
+                            ch->setText(0,QString::number(j+1) + "." + FieldName);
+                            ch->setBitend(uiBitEnd.toInt());
+                            ch->setBitbegin(uiBitBegin.toInt());
+                            ch->setOffset(stByteOffset.toInt());
+                            ch->setCheckState(0,Qt::Unchecked);//默认没有check box
+                            item_root_in->addChild(ch);
+                        }
+                    }
+                    //设置tree
+                    ui->inputtreeWidget->addTopLevelItem(item_root_in);
+                    ui->inputtreeWidget->expandAll();
+                }
+            }
+            else if(elemICD.attribute("type") == "output")
+            {
+                qDebug()<<"find output";
+            }
+            else
+            {
+
+            }
+            //下一个
+            nodeICD = nodeICD.nextSibling();
+        }
+    }
+
+
+
+}
 void MainWindow::initTreeWiget()
 {
-    input_Model = new QStandardItemModel(this);
-    output_Model = new QStandardItemModel(this);
+    //input_Model = new QStandardItemModel(this);
+    //output_Model = new QStandardItemModel(this);
 
     QStringList in_head;
     in_head << tr("数据输入:");

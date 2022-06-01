@@ -8,10 +8,12 @@
 #include <QStandardItemModel>
 #include <qtimer.h>
 #include <QTime>
-#include "dataform.h"
 #include "QLabel"
 #include "QLineEdit"
 #include "QHBoxLayout"
+#include <QtXml/QDomDocument>
+#include "QFile"
+#include "TreeWidgetItemEx.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -34,6 +36,8 @@ public:
     //void deleteListWidgetItem(int row);
 
     void doTimerService();
+
+    void loadxml();
 
 private slots:
     void onItemChanged_In(QTreeWidgetItem *item, int cloumn);

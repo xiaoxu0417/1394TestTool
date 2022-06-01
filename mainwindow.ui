@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>926</width>
-    <height>748</height>
+    <width>1285</width>
+    <height>797</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <widget class="QListView" name="outputlistView">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>604</x>
       <y>350</y>
       <width>256</width>
       <height>181</height>
@@ -29,8 +29,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>221</width>
-      <height>521</height>
+      <width>431</width>
+      <height>751</height>
      </rect>
     </property>
     <column>
@@ -42,7 +42,7 @@
    <widget class="QTreeWidget" name="outputtreeWidget">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>1030</x>
       <y>10</y>
       <width>221</width>
       <height>521</height>
@@ -57,7 +57,7 @@
    <widget class="QPushButton" name="pushButton_process">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>614</x>
       <y>230</y>
       <width>75</width>
       <height>23</height>
@@ -70,7 +70,7 @@
    <widget class="QCheckBox" name="checkBox">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>614</x>
       <y>200</y>
       <width>91</width>
       <height>16</height>
@@ -86,7 +86,7 @@
    <widget class="QPushButton" name="pushButton_start_counting">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>714</x>
       <y>200</y>
       <width>54</width>
       <height>23</height>
@@ -99,7 +99,7 @@
    <widget class="QPushButton" name="pushButton_stop_counting">
     <property name="geometry">
      <rect>
-      <x>425</x>
+      <x>779</x>
       <y>200</y>
       <width>54</width>
       <height>23</height>
@@ -112,7 +112,7 @@
    <widget class="QPushButton" name="pushButton_clear_counting">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>844</x>
       <y>200</y>
       <width>32</width>
       <height>23</height>
@@ -125,7 +125,7 @@
    <widget class="QLCDNumber" name="lcdNumber_counting">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>714</x>
       <y>230</y>
       <width>121</width>
       <height>22</height>
@@ -147,7 +147,7 @@
    <widget class="QListWidget" name="inputlistWidget">
     <property name="geometry">
      <rect>
-      <x>256</x>
+      <x>610</x>
       <y>10</y>
       <width>251</width>
       <height>171</height>
@@ -160,7 +160,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>926</width>
+     <width>1285</width>
      <height>26</height>
     </rect>
    </property>
