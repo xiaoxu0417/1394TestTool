@@ -2,22 +2,30 @@
 <DataBase>
     <ICD type="input">
 		<SYS sysname = "oil">
-			<field physicalRange="" isData="1" mathRange="" uiBitBegin="0" physicalUnit="" rowIndex="16" softwareVariable="" uiBitEnd="0" symbolPos="64" stFieldName="气压高度表决值有效字" stByteOffset="0032" mlsbHL="" dataType="uint8" mlsbHL_Value="">
+			<field uiBitBegin="0" uiBitEnd="0" stFieldName="气压高度表决值有效字" stByteOffset="0000" dataType="UINT" >
 				<mean strMean="0-无效" strValue="0"/>
 				<mean strMean="1-有效" strValue="1"/>
 			</field>
-			<field physicalRange="" isData="1" mathRange="" uiBitBegin="2" physicalUnit="" rowIndex="16" softwareVariable="" uiBitEnd="2" symbolPos="64" stFieldName="升降速度表决值有效字" stByteOffset="0032" mlsbHL="" dataType="uint8" mlsbHL_Value="">
+			<field uiBitBegin="1" uiBitEnd="1" stFieldName="升降速度表决值有效字" stByteOffset="0000" dataType="UINT" >
 				<mean strMean="0-无效" strValue="0"/>
 				<mean strMean="1-有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="2" uiBitEnd="31" stFieldName="油量" stByteOffset="0000" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="温度1" stByteOffset="0001" dataType="SINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="温度2" stByteOffset="0001" dataType="SINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="31" stFieldName="高度" stByteOffset="0002" dataType="FLOAT" >
 			</field>
 		</SYS>
 		
 		<SYS sysname = "ac">
-			<field physicalRange="" isData="1" mathRange="" uiBitBegin="3" physicalUnit="" rowIndex="16" softwareVariable="" uiBitEnd="3" symbolPos="64" stFieldName="偏航角表决值有效字" stByteOffset="0032" mlsbHL="" dataType="uint8" mlsbHL_Value="">
+			<field uiBitBegin="0" uiBitEnd="0" stFieldName="偏航角表决值有效字" stByteOffset="0001" dataType="UINT" >
 				<mean strMean="0-无效" strValue="0"/>
 				<mean strMean="1-有效" strValue="1"/>
 			</field>
-			<field physicalRange="" isData="1" mathRange="" uiBitBegin="4" physicalUnit="" rowIndex="16" softwareVariable="" uiBitEnd="4" symbolPos="64" stFieldName="俯仰角表决值有效字" stByteOffset="0032" mlsbHL="" dataType="uint8" mlsbHL_Value="">
+			<field uiBitBegin="1" uiBitEnd="1" stFieldName="俯仰角表决值有效字" stByteOffset="0001" dataType="UINT" >
 				<mean strMean="0-无效" strValue="0"/>
 				<mean strMean="1-有效" strValue="1"/>
 			</field>
@@ -25,7 +33,7 @@
 	</ICD>
 	
 	<ICD type="output">
-		<field physicalRange="" isData="1" mathRange="" uiBitBegin="0" physicalUnit="" rowIndex="16" softwareVariable="" uiBitEnd="0" symbolPos="64" stFieldName="气压高度表决值有效字" stByteOffset="0032" mlsbHL="" dataType="uint8" mlsbHL_Value="">
+		<field uiBitBegin="0" uiBitEnd="0" stFieldName="气压高度表决值有效字" stByteOffset="0000" dataType="UINT" >
 			<mean strMean="0-无效" strValue="0"/>
             <mean strMean="1-有效" strValue="1"/>
 		</field>

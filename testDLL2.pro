@@ -17,15 +17,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     TreeWidgetItemEx.cpp \
+    cdatacontrol.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     TreeWidgetItemEx.h \
+    cdatacontrol.h \
     mainwindow.h
 
 FORMS += \
-    dataform.ui \
     mainwindow.ui
 
 # Default rules for deployment.

@@ -143,15 +143,7 @@ void MainWindow::onItemChanged_Out(QTreeWidgetItem *item, int cloumn)
     ui->outputlistView->setModel(output_Model);
 }
 
-void MainWindow::onInputDataChange(QString txt)
-{
-    qDebug()<<"data change :"<<txt;
-}
 
-void MainWindow::onInputDataFinished()
-{
-    qDebug()<<"data finish";
-}
 
 //删除指定的item
 void MainWindow::deleteListWidgetItem(QString text)
@@ -161,14 +153,13 @@ void MainWindow::deleteListWidgetItem(QString text)
     QString line;
     while(row<(ui->inputlistWidget->count()))
     {
-        //line = ui->inputlistWidget->item(row)->text();
         QListWidgetItem* pItem = ui->inputlistWidget->item(row);
         line = pItem->text();
-        qDebug()<<line;
-        qDebug()<<ui->inputlistWidget->item(row);
+        //qDebug()<<line;
+        //qDebug()<<ui->inputlistWidget->item(row);
         if(text==line)
         {
-            qDebug()<<"删除成功";
+            //qDebug()<<"删除成功:"<<text;
             ui->inputlistWidget->takeItem(row);
         }
 
@@ -186,33 +177,32 @@ void MainWindow::deleteListWidgetItem(QString text)
 //输入tree widget事件处理
 void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
 {
-    qDebug() <<item->text(cloumn) <<"Cl:"<<cloumn<<" CK:"<<item->checkState(0)<<" child:"<<item->childCount();
+    //qDebug() <<item->text(cloumn) <<"Cl:"<<cloumn<<" CK:"<<item->checkState(0)<<" child:"<<item->childCount();
 
     if(item->checkState(0) == Qt::Checked)
     {
-        //output_Model->clear();
+
         if(item->childCount() == 0)//只添加子节点
         {
             QString txt = item->text(cloumn);
-            QStandardItem *sd_item = new QStandardItem(txt);
-            input_Model->appendRow(sd_item);
 
-            //dataForm *nitem = new dataForm();
-            //ui->inputlistWidget->insertItem(0,txt);
-            QWidget *widget = new QWidget(ui->inputlistWidget);
+            //QWidget *widget = new QWidget(ui->inputlistWidget);
+            QWidget *widget = new QWidget();
             QLabel *Label = new QLabel(widget);
             //Label->setText(txt);
             Label->setFrameShape(QFrame::Box);
 
 
             QLineEdit *LineEdit = new QLineEdit(ui->inputlistWidget);
-            LineEdit->setText("xuzd");
-            //connect(LineEdit,SINGAL(LineEdit::on_lineEdit_textChanged(QString& )),this,SLOT(onInputDataChange()));
-            connect(LineEdit,SIGNAL(textChanged(QString)),this,SLOT(onInputDataChange(QString)));
-            //connect(LineEdit,SIGNAL(returnPressed()),this,SLOT(onInputDataFinished()));
-            connect(LineEdit,SIGNAL(editingFinished()),this,SLOT(onInputDataFinished()));
+            LineEdit->setText("0");
 
-            //创见水平布局
+            //绑定每个lineEdit的槽函数
+            TreeWidgetItemEx *pItem = dynamic_cast<TreeWidgetItemEx*>(item);
+            CDataControl *Ctl = new CDataControl(pItem->getBitbegin(),pItem->getBitend(),pItem->getOffset(),pItem->getDatatype());
+            connect(LineEdit,SIGNAL(textChanged(QString)),Ctl,SLOT(onInputDataChange(QString)));
+            connect(LineEdit,SIGNAL(editingFinished()),Ctl,SLOT(onInputDataFinished()));
+
+            //创建水平布局
             QHBoxLayout *horLayout = new QHBoxLayout;
             horLayout->setContentsMargins(0, 0, 0, 0);
             horLayout->setMargin(2);
@@ -230,6 +220,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             QSize size = ITEM->sizeHint();
             ITEM->setSizeHint(QSize(size.width(), 40));
             ui->inputlistWidget->addItem(ITEM);
+
             widget->setSizeIncrement(size.width(), 40);
             ui->inputlistWidget->setItemWidget(ITEM, widget);//添加项目,每个item应该自己是一个类
 
@@ -238,16 +229,11 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
         {
             //设置tree所有子节点被选中
             item->child(i)->setCheckState(cloumn,Qt::Checked);
-
-            //这里不用appendRow,因为设置了checkstate,系统自动调用onItemChanged_In,执行子节点
-            //设置list view 显示所有信号
-            //QString txt = item->child(i)->text(cloumn);
-            //QStandardItem *sd_item = new QStandardItem(txt);
-            //input_Model->appendRow(sd_item);
         }
 
         //父项根据所有子项的勾选状态设置勾选状态,点击父节点,会自动勾选子节点
-        auto parentItem = item->parent();
+        auto parentItem = item->QTreeWidgetItem::parent();
+
         if(parentItem && (parentItem->checkState(0) != Qt::Checked))
         {
             auto friendCount = parentItem->childCount();
@@ -278,14 +264,14 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
         {
             item->child(i)->setCheckState(0, Qt::Unchecked);
         }
-        if(cloumn < input_Model->rowCount())
+
+        if(cloumn < ui->inputlistWidget->count())
         {
             //删除listview的item
             deleteListWidgetItem(item->text(cloumn));
-            //deleteListWidgetItem(cloumn);
         }
         //父项根据所有子项的勾选状态设置勾选状态
-        auto parentItem = item->parent();
+        auto parentItem = item->QTreeWidgetItem::parent();
         if(parentItem && (parentItem->checkState(0) != Qt::Unchecked))
         {
             auto friendCount = parentItem->childCount();
@@ -307,20 +293,22 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
         }
     } else if(item->checkState(0) == Qt::PartiallyChecked)
     {
-        auto parentItem = item->parent();
+        auto parentItem = item->QTreeWidgetItem::parent();
         if(parentItem)
         { //设置父项相同勾选状态
             parentItem->setCheckState(0, Qt::PartiallyChecked);
         }
     }
-
-    //ui->inputlistView->setModel(input_Model);
 }
 
 
 void MainWindow::connectWidget()
 {
-    connect(ui->inputtreeWidget, &QTreeWidget::itemChanged, this, &MainWindow::onItemChanged_In);
+    //新语法
+    QObject::connect(ui->inputtreeWidget, &QTreeWidget::itemChanged, this, &MainWindow::onItemChanged_In);
+    //旧语法
+    //connect(ui->inputtreeWidget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(onItemChanged_In(QTreeWidgetItem *, int )));
+
     connect(ui->outputtreeWidget, &QTreeWidget::itemChanged, this, &MainWindow::onItemChanged_Out);
 }
 
@@ -341,6 +329,8 @@ void MainWindow::doTimerService()
 
 void MainWindow::loadxml()
 {
+    input_Model = new QStandardItemModel(this);
+
     //QString fullpath = "C:\\Users\\lxl\\Desktop\\1394.xml";
     QString fullpath = "1394.xml";
     QFile file(fullpath);
@@ -367,11 +357,7 @@ void MainWindow::loadxml()
     QDomNode root = doc.documentElement();
     QDomNode nodeICD = root.firstChild();
 
-    //auto item_root =  new TreeWidgetItemEx;
     ui->inputtreeWidget->setHeaderLabels(in_head);
-
-    //item_root->addChild(item_root_in);
-
     while(!nodeICD.isNull())
     {
         //遍历输入和输出
@@ -384,14 +370,14 @@ void MainWindow::loadxml()
                 QDomNodeList listSYS= elemICD.childNodes();
                 for(int i = 0; i < listSYS.size();i++)
                 {
-                    auto item_root_in = new TreeWidgetItemEx;
+                    auto itemSYS = new TreeWidgetItemEx;
                     QDomNode nodeSYS = listSYS.at(i);
                     QDomElement elemSYS = nodeSYS.toElement();
                     //每个子系统创建一个tree
-                    qDebug()<<elemSYS.attribute("sysname");
+                    //qDebug()<<elemSYS.attribute("sysname");
 
-                    item_root_in->setText(0, elemSYS.attribute("sysname"));
-                    item_root_in->setCheckState(0, Qt::Unchecked);
+                    itemSYS->setText(0, elemSYS.attribute("sysname"));
+                    itemSYS->setCheckState(0, Qt::Unchecked);
 
                     if(nodeSYS.isElement())
                     {
@@ -418,26 +404,25 @@ void MainWindow::loadxml()
                                 QDomElement elemValue = nodeValue.toElement();
                                 QString meaning = elemValue.attribute("strMean");
                                 QString value = elemValue.attribute("strValue");
-                                qDebug()<<meaning<<" "<<value;
                             }
-                            qDebug()<<FieldName + " " + uiBitBegin + " " + uiBitEnd + " " + dataType +" "+ stByteOffset;
                             auto ch = new TreeWidgetItemEx();
                             ch->setText(0,QString::number(j+1) + "." + FieldName);
                             ch->setBitend(uiBitEnd.toInt());
                             ch->setBitbegin(uiBitBegin.toInt());
                             ch->setOffset(stByteOffset.toInt());
+                            ch->setDatatype(dataType);
                             ch->setCheckState(0,Qt::Unchecked);//默认没有check box
-                            item_root_in->addChild(ch);
+                            itemSYS->addChild(ch);
                         }
                     }
                     //设置tree
-                    ui->inputtreeWidget->addTopLevelItem(item_root_in);
+                    ui->inputtreeWidget->addTopLevelItem(itemSYS);
                     ui->inputtreeWidget->expandAll();
                 }
             }
             else if(elemICD.attribute("type") == "output")
             {
-                qDebug()<<"find output";
+                //qDebug()<<"find output";
             }
             else
             {
@@ -447,13 +432,12 @@ void MainWindow::loadxml()
             nodeICD = nodeICD.nextSibling();
         }
     }
-
-
-
+    //累加bits
 }
+
 void MainWindow::initTreeWiget()
 {
-    //input_Model = new QStandardItemModel(this);
+
     //output_Model = new QStandardItemModel(this);
 
     QStringList in_head;
@@ -539,11 +523,13 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
 
 void MainWindow::on_pushButton_process_clicked()
 {
-    if(bUseCounting)
-    {
-        countTimer->start();
-        begin = QTime::currentTime();//获取当前时间
-    }
+    int *p = CDataControl::getIntputdata();
+    qDebug()<<"输入"<<*p;
+//    if(bUseCounting)
+//    {
+//        countTimer->start();
+//        //begin = QTime::currentTime();//获取当前时间
+//    }
 }
 
 void MainWindow::on_pushButton_start_counting_clicked()
@@ -571,12 +557,6 @@ void MainWindow::on_pushButton_stop_counting_clicked()
 
 void MainWindow::on_pushButton_clear_counting_clicked()
 {
-//    if(!countTimer->isActive())
-//    {
-//        ui->lcdNumber_counting->display(0);
-//        ui->pushButton_start_counting->setEnabled(true);
-//        ui->pushButton_stop_counting->setEnabled(false);
-//    }
     if(countTimer->isActive())
     {
         countTimer->stop();

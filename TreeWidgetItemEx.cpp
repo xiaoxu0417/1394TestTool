@@ -6,11 +6,12 @@ TreeWidgetItemEx::TreeWidgetItemEx()
 
 }
 
-TreeWidgetItemEx::TreeWidgetItemEx(int a, int b, int c)
+TreeWidgetItemEx::TreeWidgetItemEx(int a, int b, int c,enum datatype type)
 {
     bitbegin = a;
     bitend = b;
     offset = c;
+    datatype = type;
 }
 
 TreeWidgetItemEx::~TreeWidgetItemEx()
@@ -46,4 +47,21 @@ int TreeWidgetItemEx::getOffset() const
 void TreeWidgetItemEx::setOffset(int value)
 {
     offset = value;
+}
+
+int TreeWidgetItemEx::getDatatype() const
+{
+    return datatype;
+}
+
+void TreeWidgetItemEx::setDatatype(const QString &value)
+{
+    if(value == "UINT")
+        datatype = 1;
+    else if(value == "SINT")
+        datatype = 2;
+    else if(value == "FLOAT")
+        datatype = 3;
+    else
+        datatype = 1;
 }

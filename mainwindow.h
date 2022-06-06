@@ -14,6 +14,8 @@
 #include <QtXml/QDomDocument>
 #include "QFile"
 #include "TreeWidgetItemEx.h"
+#include "cdatacontrol.h"
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -42,9 +44,7 @@ public:
 private slots:
     void onItemChanged_In(QTreeWidgetItem *item, int cloumn);
     void onItemChanged_Out(QTreeWidgetItem *item, int cloumn);
-    //总线数据变化
-    void onInputDataChange(QString txt);
-    void onInputDataFinished();
+
 
     void on_checkBox_stateChanged(int arg1);
 
@@ -64,5 +64,7 @@ private:
     QTimer *countTimer;// 定义定时器对象
     QTime begin;
     QTime end;
+    //QList <CDataControl*> listCtl;
+    //QList <QLineEdit> EditCtl;
 };
 #endif // MAINWINDOW_H
