@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>972</width>
-    <height>586</height>
+    <width>1550</width>
+    <height>1119</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -126,6 +126,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pushButtonClearData">
+          <property name="text">
+           <string>清除输入数据</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -157,6 +164,9 @@
        </layout>
       </item>
       <item>
+       <widget class="QListWidget" name="outputlistWidget"/>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -168,9 +178,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item>
-       <widget class="QListView" name="outputlistView"/>
       </item>
       <item>
        <spacer name="verticalSpacer_2">
@@ -252,7 +259,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>972</width>
+     <width>1550</width>
      <height>26</height>
     </rect>
    </property>

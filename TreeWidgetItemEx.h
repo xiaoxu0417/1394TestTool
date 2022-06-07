@@ -30,11 +30,15 @@ public:
     int getDatatype() const;
     void setDatatype(const QString &value);
 
+    bool getB_io() const;
+    void setB_io(bool value);
+
 private:
     int bitbegin;
     int bitend;
     int offset;
     int datatype;
+    bool b_io;
 };
 
 #endif // MYTREEITEM_H

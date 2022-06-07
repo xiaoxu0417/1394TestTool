@@ -1,32 +1,94 @@
 #include "cdatacontrol.h"
 
-int CDataControl::intputdata[] = {0};
+void* CDataControl::intputdata = nullptr;
+int CDataControl::inputdatalength = 0;
 
-CDataControl::CDataControl(int b, int e, int o,int datatype)
+CDataControl::CDataControl(int b, int e, int o,int datatype,bool io,int length)
 {
     beginbit = b;
     endbit = e;
     offset = o;
     this->datatype = datatype;
+    this->io = io;
+    if(!intputdata)
+    {
+        intputdata = (void*)malloc(sizeof(int)*length);
+        memset(intputdata,0x0,sizeof(int)*length);
+    }
+
+    if(io == false)
+    {
+        //解析数据
+    }
 }
 
-void CDataControl::onInputDataFinished()
+void CDataControl::slot_onInputDataFinished()
 {
     qDebug()<<beginbit <<" "<<endbit <<" "<< offset <<" data finish";
-    bool ret = isVaild();
+    //if(inputstr != "0")
+    {
+        bool ret = isVaild();
+    }
+
 }
 
-void CDataControl::onInputDataChange(QString txt)
+void CDataControl::slot_onInputDataChange(QString txt)
 {
     qDebug()<<beginbit <<" "<<endbit <<" "<< offset <<" data change"<<txt;
     inputstr = txt;
+}
+
+void CDataControl::slot_updateOutputData()
+{
+    //更新输出端数据
+    qDebug()<<"更新数据!";
+}
+
+//清除所有数据
+void CDataControl::slot_clearalldata()
+{
+    //struct testdata *data = (struct testdata *)intputdata;
+
+    memset(intputdata,  0x0,    sizeof(int)* inputdatalength);
+
+
+}
+
+void CDataControl::slot_updatedata()
+{
+
+}
+
+void CDataControl::setbitsdata()
+{
+
+}
+
+int CDataControl::getDatalength()
+{
+    return inputdatalength;
+}
+
+void CDataControl::setDatalength(int value)
+{
+    inputdatalength = value;
+}
+
+bool CDataControl::getIo() const
+{
+    return io;
+}
+
+void CDataControl::setIo(bool value)
+{
+    io = value;
 }
 
 bool CDataControl::isVaild()
 {
     bool ret = false;
     //先不考虑大小端
-    int bits = endbit - beginbit;
+    int bits = endbit - beginbit + 1;
     if(bits < 0)
     {
         qDebug()<<"位域错误!"<<endbit<<" "<<beginbit;
@@ -38,40 +100,31 @@ bool CDataControl::isVaild()
     unsigned int filter = 0;
 
     unsigned int ret_unint = 0;
+    float ret_float = 0.0;
     unsigned int *p;
+    float *pf;
     int *p2;
     unsigned int head = 0;
     unsigned int tail1 = 0;
     switch(datatype)
     {
-    //int
+    //int,有符号数和无符号数算法一致
     case 2:
         ret_int = inputstr.toInt();
-        if(ret_int > 0x1<<bits)
+        if(ret_int > (0x1<<bits)-1 || (ret_int < -1 * (0x1 << (bits))))
         {
-            qDebug()<<"数值越界";
+            qDebug()<<"SINT 数值越界";
             ret_int = 0;
         }
-        //大于0
-        if(ret_int >= 0)
-        {
-            //根据begin end offset 和ret_int 修改总线数据
-            p2 = (int *)intputdata + offset;
-            head = (0x1 <<(32 - endbit - 1)) - 1;
-            head = head << (endbit + 1);
+        //根据begin end offset 和ret_int 修改总线数据
+        p2 = (int *)intputdata + offset;
+        head = (0x1 <<(32 - endbit - 1)) - 1;
+        head = head << (endbit + 1);
 
-            tail1 = (0x1 << (beginbit)) - 1;
-            head = head | tail1;
-            *p2 = (*p2) & head;
-
-            *p2 = (*p2)|(ret_int << beginbit);
-        }
-        else
-        {
-            filter = (0x1 <<(endbit - beginbit)) - 1;
-            temp = ret_int &(filter) - 1;
-            temp = ~(temp);//符号位
-        }
+        tail1 = (0x1 << (beginbit)) - 1;
+        head = head | tail1;
+        *p2 = (*p2) & head;
+        *p2 = (*p2)|(ret_int << beginbit);
         break;
    //unsigned int
     case 1:
@@ -79,7 +132,7 @@ bool CDataControl::isVaild()
 
         if((ret_unint > (0x1<<bits)) || (ret_unint < 0))
         {
-            qDebug()<<"数值越界";
+            qDebug()<<"UINT 数值越界";
             ret_unint = 0;
         }
         p = (unsigned int *)intputdata + offset;
@@ -89,14 +142,18 @@ bool CDataControl::isVaild()
         tail1 = (0x1 << (beginbit)) - 1;
         head = head | tail1;
         *p = (*p) & head;
-
         *p = (*p)|(ret_unint << beginbit);
-
-
         break;
 
    //float
     case 3:
+        if(bits != 32)
+        {
+            qDebug()<<"FLOAT 位数错误";
+        }
+        ret_float = inputstr.toFloat();
+        pf = (float *)intputdata + offset;
+        *pf = ret_float;
         ret = true;
         break;
     }
@@ -104,14 +161,14 @@ bool CDataControl::isVaild()
     return ret;
 }
 
-int* CDataControl::getIntputdata()
+void* CDataControl::getIntputdata()
 {
     return intputdata;
 }
 
 void CDataControl::setIntputdata(int value)
 {
-    intputdata[0] = value;
+    intputdata = nullptr;
 }
 
 

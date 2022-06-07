@@ -65,3 +65,13 @@ void TreeWidgetItemEx::setDatatype(const QString &value)
     else
         datatype = 1;
 }
+
+bool TreeWidgetItemEx::getB_io() const
+{
+    return b_io;
+}
+
+void TreeWidgetItemEx::setB_io(bool value)
+{
+    b_io = value;
+}

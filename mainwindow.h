@@ -16,6 +16,10 @@
 #include "TreeWidgetItemEx.h"
 #include "cdatacontrol.h"
 #include <QList>
+#include "def.h"
+#include <windows.h>
+
+//#pragma execution_character_set("utf-8")
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,11 +32,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void initTreeWiget();
+
     void connectWidget();
 
     void delteInputListView(QString text);
-    void delteOutputListView(QString text);
+
     //删除指定的item
     void deleteListWidgetItem(QString text);
     //void deleteListWidgetItem(int row);
@@ -41,10 +45,14 @@ public:
 
     void loadxml();
 
+    void runProce();
+
+signals:
+    void ClearAllData();
+    void ClearAllData(QString);
+
 private slots:
     void onItemChanged_In(QTreeWidgetItem *item, int cloumn);
-    void onItemChanged_Out(QTreeWidgetItem *item, int cloumn);
-
 
     void on_checkBox_stateChanged(int arg1);
 
@@ -56,6 +64,10 @@ private slots:
 
     void on_pushButton_clear_counting_clicked();
 
+    void on_pushButtonClearData_clicked();
+
+
+
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *input_Model;//输入listview的model
@@ -64,7 +76,8 @@ private:
     QTimer *countTimer;// 定义定时器对象
     QTime begin;
     QTime end;
-    //QList <CDataControl*> listCtl;
-    //QList <QLineEdit> EditCtl;
+    int inputword;
+
+    bool bRun;
 };
 #endif // MAINWINDOW_H

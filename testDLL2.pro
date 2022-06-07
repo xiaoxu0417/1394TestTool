@@ -24,6 +24,7 @@ SOURCES += \
 HEADERS += \
     TreeWidgetItemEx.h \
     cdatacontrol.h \
+    def.h \
     mainwindow.h
 
 FORMS += \

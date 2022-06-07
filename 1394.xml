@@ -33,9 +33,11 @@
 	</ICD>
 	
 	<ICD type="output">
-		<field uiBitBegin="0" uiBitEnd="0" stFieldName="气压高度表决值有效字" stByteOffset="0000" dataType="UINT" >
-			<mean strMean="0-无效" strValue="0"/>
-            <mean strMean="1-有效" strValue="1"/>
-		</field>
+		<SYS sysname = "fire">
+			<field uiBitBegin="0" uiBitEnd="0" stFieldName="气压高度表决值有效字" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="0-无效" strValue="0"/>
+				<mean strMean="1-有效" strValue="1"/>
+			</field>
+		</SYS>
 	</ICD>
 </DataBase>
