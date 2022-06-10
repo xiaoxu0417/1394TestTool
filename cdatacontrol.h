@@ -24,13 +24,13 @@ public:
     static void setDatalength(int value);
 signals:
     void updatedata();
+    void testsetOutPutdata(QString);
 
 private slots:
     void slot_onInputDataFinished();
     void slot_onInputDataChange(QString txt);
     void slot_updateOutputData();
     void slot_clearalldata();
-    void slot_updatedata();
 
 private:
     void setbitsdata();

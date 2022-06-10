@@ -19,13 +19,15 @@ SOURCES += \
     TreeWidgetItemEx.cpp \
     cdatacontrol.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    processthread.cpp
 
 HEADERS += \
     TreeWidgetItemEx.h \
     cdatacontrol.h \
     def.h \
-    mainwindow.h
+    mainwindow.h \
+    processthread.h
 
 FORMS += \
     mainwindow.ui

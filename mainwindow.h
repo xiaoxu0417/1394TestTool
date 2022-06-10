@@ -18,6 +18,7 @@
 #include <QList>
 #include "def.h"
 #include <windows.h>
+#include "processthread.h"
 
 //#pragma execution_character_set("utf-8")
 
@@ -37,7 +38,7 @@ public:
 
     void delteInputListView(QString text);
 
-    //删除指定的item
+    //删除
     void deleteListWidgetItem(QString text);
     //void deleteListWidgetItem(int row);
 
@@ -45,11 +46,11 @@ public:
 
     void loadxml();
 
-    void runProce();
-
 signals:
     void ClearAllData();
     void ClearAllData(QString);
+    void newInputdata2Proce();
+    //void running();
 
 private slots:
     void onItemChanged_In(QTreeWidgetItem *item, int cloumn);
@@ -70,14 +71,15 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QStandardItemModel *input_Model;//输入listview的model
-    QStandardItemModel *output_Model;//输出listview的model
+    QStandardItemModel *input_Model;//输入
+    QStandardItemModel *output_Model;//输出
     bool bUseCounting;
-    QTimer *countTimer;// 定义定时器对象
+    QTimer *countTimer;//计时器
     QTime begin;
     QTime end;
     int inputword;
 
     bool bRun;
+    ProcessThread *ProThread;
 };
 #endif // MAINWINDOW_H

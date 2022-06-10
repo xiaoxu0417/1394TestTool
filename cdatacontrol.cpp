@@ -40,8 +40,12 @@ void CDataControl::slot_onInputDataChange(QString txt)
 
 void CDataControl::slot_updateOutputData()
 {
+    static int ret = 10;
     //更新输出端数据
-    qDebug()<<"更新数据!";
+    qDebug()<<"update output! "<<io <<ret;
+    //当process程序运行起来时,每拍让输出数据更新
+    emit testsetOutPutdata(QString::number(ret));
+    ret++;
 }
 
 //清除所有数据
@@ -54,10 +58,7 @@ void CDataControl::slot_clearalldata()
 
 }
 
-void CDataControl::slot_updatedata()
-{
 
-}
 
 void CDataControl::setbitsdata()
 {

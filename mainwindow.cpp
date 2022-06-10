@@ -35,7 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
     //绑定槽函数
     connectWidget();
 
-    runProce();
+    ProThread = new ProcessThread();
+    connect(this,SIGNAL(newInputdata2Proce()),ProThread,SLOT(getNewInpoputData()));
+    ProThread->start();
 }
 
 MainWindow::~MainWindow()
@@ -125,7 +127,8 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             }
             else//输出数据,不可编辑
             {
-                connect(ui->pushButton_process,SIGNAL(clicked()),Ctl,SLOT(slot_updateOutputData()));
+                connect(Ctl,SIGNAL(testsetOutPutdata(QString)),LineEdit,SLOT(setText(QString)));//显示输出数据
+                connect(ProThread,SIGNAL(running()),Ctl,SLOT(slot_updateOutputData()));//每拍发出running信号,去更新输出数据的值
                 LineEdit->setEnabled(false);
             }
 
@@ -434,23 +437,6 @@ void MainWindow::loadxml()
     //累加bits
 }
 
-void MainWindow::runProce()
-{
-    while(bRun)
-    {
-        QTime begin;
-        begin = QTime::currentTime();
-        qDebug()<<begin;
-        // call dll
-        QTime end = QTime::currentTime();
-        int m_iTestTime = begin.msecsTo(end);
-        if(m_iTestTime < 12.5)
-        {
-            Sleep(12.5 - m_iTestTime);//毫秒
-        }
-    }
-}
-
 void MainWindow::on_checkBox_stateChanged(int arg1)
 {
     bUseCounting = arg1 == 2?true:false;
@@ -474,19 +460,21 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
 
 void MainWindow::on_pushButton_process_clicked()
 {
-    //获取输入输出
-    void *p = CDataControl::getIntputdata();
-    struct testdata data;
-    memset(&data,0x0,sizeof(data));
-    if(!p)
-    {
-        qDebug()<<"process no data";
-    }
-    else
-    {
-        memcpy(&data,p,sizeof(int)*inputword);
-        qDebug()<<"输入"<<data.e1;
-    }
+//    //获取输入输出
+//    void *p = CDataControl::getIntputdata();
+//    struct testdata data;
+//    memset(&data,0x0,sizeof(data));
+//    if(!p)
+//    {
+//        qDebug()<<"process no data";
+//    }
+//    else
+//    {
+//        memcpy(&data,p,sizeof(int)*inputword);
+//        qDebug()<<"输入"<<data.e1;
+//    }
+
+    emit newInputdata2Proce();
 
     if(bUseCounting)
     {
@@ -500,7 +488,7 @@ void MainWindow::on_pushButton_process_clicked()
     //调用dll接口
 
     //获取dll返回数据,并通知CDataControl更新输出数据
-
+    //emit running();
 
 }
 

@@ -1,6 +1,6 @@
 #ifndef DEF_H
 #define DEF_H
-//数据结构体定义,需要与xml保持一致
+//真实环境下数据结构体定义,需要与xml保持一致,包含输入和输出结构体
 struct testdata
 {
     unsigned int a:1;
