@@ -62,25 +62,46 @@ void MainWindow::delteInputListView(QString text)
 }
 
 //删除指定的item
-void MainWindow::deleteListWidgetItem(QString text)
+void MainWindow::deleteListWidgetItem(QString text, bool io)
 {
 #if 1
     int row=0;
     QString line;
-    while(row<(ui->inputlistWidget->count()))
+    if(io)
     {
-        QListWidgetItem* pItem = ui->inputlistWidget->item(row);
-        line = pItem->text();
-        //qDebug()<<line;
-        //qDebug()<<ui->inputlistWidget->item(row);
-        if(text==line)
+        while(row<(ui->inputlistWidget->count()))
         {
-            //qDebug()<<"删除成功:"<<text;
-            ui->inputlistWidget->takeItem(row);
-            break;
-        }
+            QListWidgetItem* pItem = ui->inputlistWidget->item(row);
+            line = pItem->text();
+            //qDebug()<<line;
+            //qDebug()<<ui->inputlistWidget->item(row);
+            if(text==line)
+            {
+                //qDebug()<<"删除成功:"<<text;
+                ui->inputlistWidget->takeItem(row);
+                break;
+            }
 
-        row++;
+            row++;
+        }
+    }
+    else
+    {
+        while(row<(ui->outputlistWidget->count()))
+        {
+            QListWidgetItem* pItem = ui->outputlistWidget->item(row);
+            line = pItem->text();
+            //qDebug()<<line;
+            //qDebug()<<ui->inputlistWidget->item(row);
+            if(text==line)
+            {
+                //qDebug()<<"删除成功:"<<text;
+                ui->outputlistWidget->takeItem(row);
+                break;
+            }
+
+            row++;
+        }
     }
 #else
     if(row < ui->inputlistWidget->count() && row >= 0)
@@ -96,6 +117,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
 {
     //qDebug() <<item->text(cloumn) <<"Cl:"<<cloumn<<" CK:"<<item->checkState(0)<<" child:"<<item->childCount();
 
+    TreeWidgetItemEx *pItem = dynamic_cast<TreeWidgetItemEx*>(item);
     if(item->checkState(0) == Qt::Checked)
     {
 
@@ -114,7 +136,6 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             LineEdit->setText("0");
 
             //绑定每个lineEdit的槽函数
-            TreeWidgetItemEx *pItem = dynamic_cast<TreeWidgetItemEx*>(item);
             CDataControl *Ctl = new CDataControl(pItem->getBitbegin(),pItem->getBitend(),pItem->getOffset(),pItem->getDatatype(),pItem->getB_io(),inputword);
 
             //输入
@@ -128,7 +149,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             else//输出数据,不可编辑
             {
                 connect(Ctl,SIGNAL(testsetOutPutdata(QString)),LineEdit,SLOT(setText(QString)));//显示输出数据
-                connect(ProThread,SIGNAL(running()),Ctl,SLOT(slot_updateOutputData()));//每拍发出running信号,去更新输出数据的值
+                connect(ProThread,SIGNAL(running(QVariant)),Ctl,SLOT(slot_updateOutputData(QVariant)));//每拍发出running信号,去更新输出数据的值
                 LineEdit->setEnabled(false);
             }
 
@@ -203,10 +224,10 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             item->child(i)->setCheckState(0, Qt::Unchecked);
         }
 
-        if(cloumn < ui->inputlistWidget->count())
+        //if(cloumn < ui->inputlistWidget->count())
         {
             //删除listview的item
-            deleteListWidgetItem(item->text(cloumn));
+            deleteListWidgetItem(item->text(cloumn),pItem->getB_io());
         }
         //父项根据所有子项的勾选状态设置勾选状态
         auto parentItem = item->QTreeWidgetItem::parent();

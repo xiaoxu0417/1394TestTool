@@ -29,7 +29,7 @@ signals:
 private slots:
     void slot_onInputDataFinished();
     void slot_onInputDataChange(QString txt);
-    void slot_updateOutputData();
+    void slot_updateOutputData(QVariant var);
     void slot_clearalldata();
 
 private:

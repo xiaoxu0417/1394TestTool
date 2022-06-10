@@ -39,7 +39,7 @@ public:
     void delteInputListView(QString text);
 
     //删除
-    void deleteListWidgetItem(QString text);
+    void deleteListWidgetItem(QString text, bool io);
     //void deleteListWidgetItem(int row);
 
     void doTimerService();

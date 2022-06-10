@@ -38,6 +38,12 @@
 				<mean strMean="0-无效" strValue="0"/>
 				<mean strMean="1-有效" strValue="1"/>
 			</field>
+			<field uiBitBegin="1" uiBitEnd="16" stFieldName="气压高度1" stByteOffset="0000" dataType="UINT" >
+			</field>
+			<field uiBitBegin="17" uiBitEnd="31" stFieldName="气压高度2" stByteOffset="0000" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="31" stFieldName="引起压力" stByteOffset="0001" dataType="SINT" >
+			</field>
 		</SYS>
 	</ICD>
 </DataBase>

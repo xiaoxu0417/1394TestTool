@@ -4,29 +4,45 @@ ProcessThread::ProcessThread()
 {
     bRun = true;
     bNewdata = false;
-    memset(&data,0x0,sizeof(data));
+    memset(&indata,0x0,sizeof(indata));
+    memset(&outdata,0x0,sizeof (outdata));
+    memset(&lastoutdata,0x0,sizeof(lastoutdata));
 }
 
 void ProcessThread::run()
 {
     while(bRun)
     {
-        if(data.e1 != 0)
+        if(indata.e1 != 0)
         {
             //qDebug()<<"输入"<<data.e1;
         }
 
-        QTime begin;
-        begin = QTime::currentTime();
-        //qDebug()<<begin;
-        // call dll,并传递参数,返回调用参数
-        QTime end = QTime::currentTime();
-        int m_iTestTime = begin.msecsTo(end);
-        if(m_iTestTime < 12.5)
+//        QTime begin;
+//        begin = QTime::currentTime();
+//        //qDebug()<<begin;
+//        // call dll,并传递参数,返回调用参数
+//        QTime end = QTime::currentTime();
+//        int m_iTestTime = begin.msecsTo(end);
+//        if(m_iTestTime < 12.5)
+//        {
+//            Sleep(12.5 - m_iTestTime);//毫秒
+//        }
+        //indata入参
+        outdata.a = indata.a;
+        outdata.b = indata.e1*10;
+        outdata.c = indata.e2*10;
+
+        outdata.d = indata.f*10;
+        //outdata出参
+
+        if(memcmp(&lastoutdata,&outdata,sizeof (outdata)))
         {
-            Sleep(12.5 - m_iTestTime);//毫秒
+            memcpy(&lastoutdata,&outdata,sizeof (outdata));
+            QVariant data;
+            data.setValue(outdata);
+            emit running(data);
         }
-        emit running();
     }
 }
 
@@ -50,6 +66,6 @@ void ProcessThread::getNewInpoputData()
     }
     else
     {
-        memcpy(&data,p,sizeof(data));
+        memcpy(&indata,p,sizeof(indata));
     }
 }

@@ -17,7 +17,7 @@ public:
     void setBNewdata(bool value);
 
 signals:
-    void running();//接口程序运行信号,此信号通知cdatacontrol更新输出数据
+    void running(QVariant var);//接口程序运行信号,此信号通知cdatacontrol更新输出数据
 
 private slots:
     void getNewInpoputData();//获取新的输入数据
@@ -25,7 +25,9 @@ private slots:
 private:
     bool bRun;
     bool bNewdata;
-    struct testdata data;
+    struct testdata indata;
+    struct testdata_out outdata;
+    struct testdata_out lastoutdata;
 };
 
 #endif // PROCESSTHREAD_H

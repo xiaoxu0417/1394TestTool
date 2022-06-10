@@ -38,14 +38,22 @@ void CDataControl::slot_onInputDataChange(QString txt)
     inputstr = txt;
 }
 
-void CDataControl::slot_updateOutputData()
+void CDataControl::slot_updateOutputData(QVariant var)
 {
-    static int ret = 10;
+    int ret = 10;
     //更新输出端数据
-    qDebug()<<"update output! "<<io <<ret;
+    qDebug()<<"update output! "<<io;
+    struct testdata_out data = var.value<struct testdata_out>();
+    int *p = (int *)&data;
+    unsigned int bits = endbit - beginbit + 1;
+    unsigned int left = ((0x1 << bits) - 1);
+    unsigned int right = beginbit;
+    printf("%d %d %d \n",((*p) & left) >> right,left,right);
+    //ret = ((*p) & right) >> right;
+    ret = ((*p) >> right) & left;
+
     //当process程序运行起来时,每拍让输出数据更新
     emit testsetOutPutdata(QString::number(ret));
-    ret++;
 }
 
 //清除所有数据
