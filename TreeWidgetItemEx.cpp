@@ -75,3 +75,13 @@ void TreeWidgetItemEx::setB_io(bool value)
 {
     b_io = value;
 }
+
+unsigned int TreeWidgetItemEx::getNo() const
+{
+    return No;
+}
+
+void TreeWidgetItemEx::setNo(unsigned int value)
+{
+    No = value;
+}

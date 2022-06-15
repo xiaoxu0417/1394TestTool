@@ -19,6 +19,7 @@
 #include "def.h"
 #include <windows.h>
 #include "processthread.h"
+#include <QMessageBox>
 
 //#pragma execution_character_set("utf-8")
 
@@ -69,6 +70,8 @@ private slots:
 
 
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *input_Model;//输入
@@ -81,5 +84,11 @@ private:
 
     bool bRun;
     ProcessThread *ProThread;
+
+    unsigned int inputindex = 0;
+    unsigned int outputindex = 0;
+
+    QList <int>inputTag;
+    QList <int>outputTag;
 };
 #endif // MAINWINDOW_H

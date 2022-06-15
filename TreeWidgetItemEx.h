@@ -33,12 +33,19 @@ public:
     bool getB_io() const;
     void setB_io(bool value);
 
+    unsigned int getNo() const;
+    void setNo(unsigned int value);
+
 private:
     int bitbegin;
     int bitend;
     int offset;
     int datatype;
     bool b_io;
+
+    //标记当前信号是哪个子系统,第几个信号
+    //unsigned int Level;
+    unsigned int No;
 };
 
 #endif // MYTREEITEM_H

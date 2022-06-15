@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QString>
 #include "def.h"
+#include <QMessageBox>
 
 class CDataControl:public QObject
 {

@@ -120,7 +120,14 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
     TreeWidgetItemEx *pItem = dynamic_cast<TreeWidgetItemEx*>(item);
     if(item->checkState(0) == Qt::Checked)
     {
-
+        if(pItem->getB_io())
+        {
+            inputTag.append(pItem->getNo());
+        }
+        else
+        {
+            outputTag.append(pItem->getNo());
+        }
         if(item->childCount() == 0)//只添加子节点
         {
             QString txt = item->text(cloumn);
@@ -217,6 +224,14 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
     }
     else if(item->checkState(0) == Qt::Unchecked)
     {
+        if(pItem->getB_io())
+        {
+            inputTag.removeAll(pItem->getNo());
+        }
+        else
+        {
+            outputTag.removeAll(pItem->getNo());
+        }
         auto childCount = item->childCount();
         //设置子项相同勾选状态
         for(int i = 0; i < childCount; ++i)
@@ -342,6 +357,8 @@ void MainWindow::loadxml()
 
                     itemSYS->setText(0, elemSYS.attribute("sysname"));
                     itemSYS->setCheckState(0, Qt::Unchecked);
+                    itemSYS->setNo(inputindex);
+                    inputindex++;
 
                     if(nodeSYS.isElement())
                     {
@@ -370,14 +387,17 @@ void MainWindow::loadxml()
                                 QString value = elemValue.attribute("strValue");
                             }
                             auto ch = new TreeWidgetItemEx();
-                            ch->setText(0,QString::number(j+1) + "." + FieldName);
+
+                            ch->setText(0,QString::number(inputindex+1) + "." + FieldName);
                             ch->setBitend(uiBitEnd.toInt());
                             ch->setBitbegin(uiBitBegin.toInt());
                             ch->setOffset(stByteOffset.toInt());
                             ch->setDatatype(dataType);
                             ch->setCheckState(0,Qt::Unchecked);//默认没有check box
                             ch->setB_io(true);
+                            ch->setNo(inputindex);
                             itemSYS->addChild(ch);
+                            inputindex++;
 
                             if(stByteOffset.toInt() + 1 > inputword)
                             {
@@ -432,7 +452,8 @@ void MainWindow::loadxml()
                                 QString value = elemValue.attribute("strValue");
                             }
                             auto ch = new TreeWidgetItemEx();
-                            ch->setText(0,QString::number(j+1) + "." + FieldName);
+                            outputindex++;
+                            ch->setText(0,QString::number(outputindex) + "." + FieldName);
                             ch->setBitend(uiBitEnd.toInt());
                             ch->setBitbegin(uiBitBegin.toInt());
                             ch->setOffset(stByteOffset.toInt());
@@ -555,6 +576,32 @@ void MainWindow::on_pushButton_clear_counting_clicked()
 void MainWindow::on_pushButtonClearData_clicked()
 {
     //有可能还没开始构造cDataManger
-    emit ClearAllData();
-    emit ClearAllData("0");
+    //QMessageBox message(QMessageBox::NoIcon,  "attention",  "Do you want to clear all input data?", QMessageBox::Yes | QMessageBox::No, NULL);
+    QMessageBox message(QMessageBox::NoIcon,  "注意",  "清零所有输入数据?", QMessageBox::Yes | QMessageBox::No, NULL);
+    if(message.exec() == QMessageBox::Yes)
+    {
+        //QMessageBox::aboutQt(NULL,  "About Qt");
+        //qDebug()<<"ok";
+        emit ClearAllData();
+        emit ClearAllData("0");
+    }
+    else
+    {
+        //qDebug()<<"no ok";
+    }
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+
+    QTreeWidgetItemIterator it(ui->inputtreeWidget);
+    while (*it) {
+         //do something like
+         qDebug() << (*it)->text(0);
+         if((*it)->childCount() == 0)
+         {
+            (*it)->setCheckState(0,Qt::Checked);
+         }
+         ++it;
+    }
 }

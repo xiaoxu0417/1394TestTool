@@ -59,14 +59,11 @@ void CDataControl::slot_updateOutputData(QVariant var)
 //清除所有数据
 void CDataControl::slot_clearalldata()
 {
-    //struct testdata *data = (struct testdata *)intputdata;
-
     memset(intputdata,  0x0,    sizeof(int)* inputdatalength);
-
-
+    //每一个item都弹出,效果不好
+//    QMessageBox message(QMessageBox::NoIcon,  "注意",  "已清零!");
+//    message.exec();
 }
-
-
 
 void CDataControl::setbitsdata()
 {
