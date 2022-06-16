@@ -3,12 +3,12 @@
     <ICD type="input">
 		<SYS sysname = "oil">
 			<field uiBitBegin="0" uiBitEnd="0" stFieldName="气压高度表决值有效字" stByteOffset="0000" dataType="UINT" >
-				<mean strMean="0-无效" strValue="0"/>
-				<mean strMean="1-有效" strValue="1"/>
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
 			<field uiBitBegin="1" uiBitEnd="1" stFieldName="升降速度表决值有效字" stByteOffset="0000" dataType="UINT" >
-				<mean strMean="0-无效" strValue="0"/>
-				<mean strMean="1-有效" strValue="1"/>
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
 			<field uiBitBegin="2" uiBitEnd="31" stFieldName="油量" stByteOffset="0000" dataType="UINT" >
 			</field>
@@ -17,17 +17,22 @@
 			<field uiBitBegin="16" uiBitEnd="31" stFieldName="温度2" stByteOffset="0001" dataType="SINT" >
 			</field>
 			<field uiBitBegin="0" uiBitEnd="31" stFieldName="高度" stByteOffset="0002" dataType="FLOAT" >
+				<mean strMean="未工作" strValue="0"/>
+				<mean strMean="高档位" strValue="1"/>
+				<mean strMean="中档位" strValue="2"/>
+				<mean strMean="低档位" strValue="3"/>
+				<mean strMean="正常" strValue="4"/>
 			</field>
 		</SYS>
 		
 		<SYS sysname = "ac">
 			<field uiBitBegin="0" uiBitEnd="0" stFieldName="偏航角表决值有效字" stByteOffset="0001" dataType="UINT" >
-				<mean strMean="0-无效" strValue="0"/>
-				<mean strMean="1-有效" strValue="1"/>
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
 			<field uiBitBegin="1" uiBitEnd="1" stFieldName="俯仰角表决值有效字" stByteOffset="0001" dataType="UINT" >
-				<mean strMean="0-无效" strValue="0"/>
-				<mean strMean="1-有效" strValue="1"/>
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
 		</SYS>
 	</ICD>

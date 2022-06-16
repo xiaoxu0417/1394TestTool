@@ -20,6 +20,9 @@
 #include <windows.h>
 #include "processthread.h"
 #include <QMessageBox>
+#include <QSettings>
+#include <QDir>
+#include <QFileDialog>
 
 //#pragma execution_character_set("utf-8")
 
@@ -47,6 +50,8 @@ public:
 
     void loadxml();
 
+    void updateTreeView(bool in,QList<int> List);
+
 signals:
     void ClearAllData();
     void ClearAllData(QString);
@@ -68,9 +73,13 @@ private slots:
 
     void on_pushButtonClearData_clicked();
 
+    void on_SaveTarg_clicked();
 
+    void on_LoadTarg_clicked();
 
-    void on_pushButton_clicked();
+    void on_out_save_clicked();
+
+    void on_out_load_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -78,8 +87,8 @@ private:
     QStandardItemModel *output_Model;//输出
     bool bUseCounting;
     QTimer *countTimer;//计时器
-    QTime begin;
-    QTime end;
+    //QTime begin;
+    //QTime end;
     int inputword;
 
     bool bRun;

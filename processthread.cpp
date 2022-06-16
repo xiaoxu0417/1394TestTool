@@ -7,6 +7,7 @@ ProcessThread::ProcessThread()
     memset(&indata,0x0,sizeof(indata));
     memset(&outdata,0x0,sizeof (outdata));
     memset(&lastoutdata,0x0,sizeof(lastoutdata));
+    count = 0;
 }
 
 void ProcessThread::run()
@@ -32,6 +33,12 @@ void ProcessThread::run()
         outdata.a = indata.a;
         outdata.b = indata.e1*10;
         outdata.c = indata.e2*10;
+
+        //运行
+        count++;
+        Sleep(8);
+        //qDebug()<<"thread"<<count;
+
 
         outdata.d = indata.f*10;
         //outdata出参
@@ -66,6 +73,17 @@ void ProcessThread::getNewInpoputData()
     }
     else
     {
+        bNewdata = true;
         memcpy(&indata,p,sizeof(indata));
     }
+}
+
+unsigned int ProcessThread::getCount() const
+{
+    return count;
+}
+
+void ProcessThread::setCount(unsigned int value)
+{
+    count = value;
 }

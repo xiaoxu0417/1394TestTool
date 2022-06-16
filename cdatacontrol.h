@@ -10,7 +10,7 @@ class CDataControl:public QObject
 {
     Q_OBJECT
 public:
-    CDataControl(int b,int e,int o,int datatype,bool io, int length);
+    CDataControl(int b,int e,int o,int datatype,bool m_io, int length, QMap <int,QString> meaning);
     bool isVaild();
 
     static void* intputdata;
@@ -23,9 +23,12 @@ public:
 
     static int getDatalength();
     static void setDatalength(int value);
+
 signals:
-    void updatedata();
+    //void updatedata();
     void testsetOutPutdata(QString);
+    void updateMeaning(QString);
+    void updateLineEdit(QString);
 
 private slots:
     void slot_onInputDataFinished();
@@ -40,8 +43,9 @@ private:
     unsigned int offset;
     int datatype;
     QString inputstr;
-    bool io;
+    bool m_io;
     static int inputdatalength;
+    QMap <int,QString> m_meaning;
 };
 
 #endif // CDATACONTROL_H

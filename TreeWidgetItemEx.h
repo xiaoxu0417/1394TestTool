@@ -6,7 +6,7 @@
 
 class TreeWidgetItemEx : public QTreeWidgetItem,public QObject
 {
-    enum datatype
+    enum m_datatype
     {
         UINT = 1,
         SINT ,
@@ -15,7 +15,7 @@ class TreeWidgetItemEx : public QTreeWidgetItem,public QObject
     //Q_OBJECT
 public:
     TreeWidgetItemEx();
-    TreeWidgetItemEx(int a,int b, int c, enum datatype type);
+    TreeWidgetItemEx(int a,int b, int c, enum m_datatype type);
     ~TreeWidgetItemEx();
 
     int getBitbegin() const;
@@ -36,12 +36,21 @@ public:
     unsigned int getNo() const;
     void setNo(unsigned int value);
 
+    void setMeaning(QString value,QString meaing);
+    QString getInitMeaning();
+
+    QMap <int,QString> getMeaningMap();
+
+private slots:
+    void slot_onupdateMeaning();
+
 private:
-    int bitbegin;
-    int bitend;
-    int offset;
-    int datatype;
-    bool b_io;
+    int m_bitbegin;
+    int m_bitend;
+    int m_offset;
+    int m_datatype;
+    bool m_b_io;
+    QMap <int,QString> m_meaning;
 
     //标记当前信号是哪个子系统,第几个信号
     //unsigned int Level;

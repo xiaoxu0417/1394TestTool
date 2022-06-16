@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     countTimer = new QTimer(this);
-    countTimer->setInterval(100);
+    countTimer->setInterval(1000);
     connect(countTimer,&QTimer::timeout,this,&MainWindow::doTimerService);
     //ui->lcdNumber_counting->setStyleSheet(QLCDNumber{color: red});
     ui->lcdNumber_counting->setFont(QFont("Times",12,QFont::Black));
@@ -135,7 +135,11 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             //QWidget *widget = new QWidget(ui->inputlistWidget);
             QWidget *widget = new QWidget();
             QLabel *Label = new QLabel(widget);
-            //Label->setText(txt);
+            QLabel *LabelMeaning = new QLabel(widget);
+            LabelMeaning->setText(pItem->getInitMeaning());
+            LabelMeaning->setFixedWidth(60);
+            LabelMeaning->toolTip();
+
             Label->setFrameShape(QFrame::Box);
 
 
@@ -143,7 +147,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             LineEdit->setText("0");
 
             //绑定每个lineEdit的槽函数
-            CDataControl *Ctl = new CDataControl(pItem->getBitbegin(),pItem->getBitend(),pItem->getOffset(),pItem->getDatatype(),pItem->getB_io(),inputword);
+            CDataControl *Ctl = new CDataControl(pItem->getBitbegin(),pItem->getBitend(),pItem->getOffset(),pItem->getDatatype(),pItem->getB_io(),inputword,pItem->getMeaningMap());
 
             //输入
             if(pItem->getB_io())
@@ -152,6 +156,8 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
                 connect(LineEdit,SIGNAL(editingFinished()),Ctl,SLOT(slot_onInputDataFinished()));
                 connect(this,SIGNAL(ClearAllData()),Ctl,SLOT(slot_clearalldata()));
                 connect(this,SIGNAL(ClearAllData(QString)),LineEdit,SLOT(setText(QString)));//清除
+                connect(Ctl,SIGNAL(updateMeaning(QString)),LabelMeaning,SLOT(setText(QString)));
+                connect(Ctl,SIGNAL(updateLineEdit(QString)),LineEdit,SLOT(setText(QString)));
             }
             else//输出数据,不可编辑
             {
@@ -169,6 +175,8 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             horLayout->addWidget(Label,5);
             //horLayout->addStretch(1);
             horLayout->addWidget(LineEdit,1);
+            horLayout->addWidget(LabelMeaning,1);
+
             widget->setLayout(horLayout);
 
             //将widget作为列表的item
@@ -290,21 +298,28 @@ void MainWindow::connectWidget()
 void MainWindow::doTimerService()
 {
     //QTime相减
+#if 0
     end = QTime::currentTime();//获取当前时间
     int m_iTestTime = begin.msecsTo(end)/1000;
+#else
+    unsigned int count = ProThread->getCount();
+    int m_iTestTime = (count * 12.5)/1000;
+#endif
     ulong ulHour = m_iTestTime / 3600;
     ulong ulMinute = (m_iTestTime - ulHour * 3600) / 60;
     ulong ulSecond = (m_iTestTime - ulHour * 3600 - ulMinute * 60);
 
     QString strTime = QString("%1:%2:%3").arg(ulHour,2, 10, QChar('0')).arg(ulMinute,2, 10, QChar('0') ).arg(ulSecond,2, 10, QChar('0'));
-
     ui->lcdNumber_counting->display(strTime);
     qDebug()<<m_iTestTime;
+
 }
 
 void MainWindow::loadxml()
 {
     input_Model = new QStandardItemModel(this);
+    unsigned int show_index_in = 0;
+    unsigned int show_index_out = 0;
 
     //QString fullpath = "C:\\Users\\lxl\\Desktop\\1394.xml";
     QString fullpath = "1394.xml";
@@ -379,16 +394,12 @@ void MainWindow::loadxml()
                             QString stByteOffset = elemfield.attribute("stByteOffset");
                             //获取意义
                             QDomNodeList listValue = nodefield.childNodes();
-                            for(int j =0;j<listValue.size();j++)
-                            {
-                                QDomNode nodeValue = listValue.at(j);
-                                QDomElement elemValue = nodeValue.toElement();
-                                QString meaning = elemValue.attribute("strMean");
-                                QString value = elemValue.attribute("strValue");
-                            }
-                            auto ch = new TreeWidgetItemEx();
+                            //QMap <QString,QString>meanings;
 
-                            ch->setText(0,QString::number(inputindex+1) + "." + FieldName);
+                            auto ch = new TreeWidgetItemEx();
+                            show_index_in++;
+
+                            ch->setText(0,QString::number(show_index_in) + "." + FieldName);
                             ch->setBitend(uiBitEnd.toInt());
                             ch->setBitbegin(uiBitBegin.toInt());
                             ch->setOffset(stByteOffset.toInt());
@@ -396,8 +407,19 @@ void MainWindow::loadxml()
                             ch->setCheckState(0,Qt::Unchecked);//默认没有check box
                             ch->setB_io(true);
                             ch->setNo(inputindex);
+
+                            for(int j =0;j<listValue.size();j++)
+                            {
+                                QDomNode nodeValue = listValue.at(j);
+                                QDomElement elemValue = nodeValue.toElement();
+                                QString meaning = elemValue.attribute("strMean");
+                                QString value = elemValue.attribute("strValue");
+                                ch->setMeaning(value,meaning);
+                            }
+
                             itemSYS->addChild(ch);
                             inputindex++;
+
 
                             if(stByteOffset.toInt() + 1 > inputword)
                             {
@@ -424,6 +446,8 @@ void MainWindow::loadxml()
 
                     itemSYS->setText(0, elemSYS.attribute("sysname"));
                     itemSYS->setCheckState(0, Qt::Unchecked);
+                    itemSYS->setNo(outputindex);
+                    outputindex++;
 
                     if(nodeSYS.isElement())
                     {
@@ -453,7 +477,9 @@ void MainWindow::loadxml()
                             }
                             auto ch = new TreeWidgetItemEx();
                             outputindex++;
-                            ch->setText(0,QString::number(outputindex) + "." + FieldName);
+                            show_index_out++;
+                            ch->setNo(outputindex);
+                            ch->setText(0,QString::number(show_index_out) + "." + FieldName);
                             ch->setBitend(uiBitEnd.toInt());
                             ch->setBitbegin(uiBitBegin.toInt());
                             ch->setOffset(stByteOffset.toInt());
@@ -477,6 +503,39 @@ void MainWindow::loadxml()
         }
     }
     //累加bits
+}
+
+void MainWindow::updateTreeView(bool in,QList<int> List)
+{
+    if (in)
+    {
+        QTreeWidgetItemIterator it(ui->inputtreeWidget);
+        while (*it) {
+            TreeWidgetItemEx *pItem = dynamic_cast<TreeWidgetItemEx*>(*it);
+            if(List.contains(pItem->getNo()))
+            {
+                (*it)->setCheckState(0,Qt::Checked);
+                qDebug() << (*it)->text(0);
+            }
+
+             ++it;
+        }
+    }
+    else
+    {
+        QTreeWidgetItemIterator it(ui->outputtreeWidget);
+        while (*it) {
+            TreeWidgetItemEx *pItem = dynamic_cast<TreeWidgetItemEx*>(*it);
+            if(List.contains(pItem->getNo()))
+            {
+                (*it)->setCheckState(0,Qt::Checked);
+                qDebug() << (*it)->text(0);
+            }
+
+             ++it;
+        }
+    }
+
 }
 
 void MainWindow::on_checkBox_stateChanged(int arg1)
@@ -520,8 +579,11 @@ void MainWindow::on_pushButton_process_clicked()
 
     if(bUseCounting)
     {
+
         countTimer->start();
-        begin = QTime::currentTime();//获取当前时间
+        ProThread->setCount(0);
+
+        //begin = QTime::currentTime();//获取当前时间
     }
     else
     {
@@ -539,7 +601,9 @@ void MainWindow::on_pushButton_start_counting_clicked()
     if(!bUseCounting)
     {
         countTimer->start();
-        begin = QTime::currentTime();//获取当前时间
+        //begin = QTime::currentTime();//获取当前时间
+        ProThread->setCount(0);
+
         ui->pushButton_start_counting->setEnabled(false);
         ui->pushButton_stop_counting->setEnabled(true);
     }
@@ -554,8 +618,10 @@ void MainWindow::on_pushButton_stop_counting_clicked()
 {
     if(countTimer->isActive())
     {
+
         countTimer->stop();
-        end = QTime::currentTime();//获取当前时间
+        //end = QTime::currentTime();//获取当前时间
+
         if(!bUseCounting)
         {
             ui->pushButton_start_counting->setEnabled(true);
@@ -565,10 +631,12 @@ void MainWindow::on_pushButton_stop_counting_clicked()
 
 void MainWindow::on_pushButton_clear_counting_clicked()
 {
+
     if(countTimer->isActive())
     {
         countTimer->stop();
     }
+
     ui->lcdNumber_counting->display(0);
 }
 
@@ -591,17 +659,78 @@ void MainWindow::on_pushButtonClearData_clicked()
     }
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_SaveTarg_clicked()
 {
-
+#if 0
     QTreeWidgetItemIterator it(ui->inputtreeWidget);
     while (*it) {
          //do something like
          qDebug() << (*it)->text(0);
-         if((*it)->childCount() == 0)
-         {
+
+        TreeWidgetItemEx *pItem = dynamic_cast<TreeWidgetItemEx*>(*it);
+        if(inputTag.contains(pItem->getNo()))
+        {
             (*it)->setCheckState(0,Qt::Checked);
-         }
+        }
+
          ++it;
+    }
+#else
+    qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
+
+    //保存当前选项
+    QString filter ="(*.ini)";
+    QString aFileName = QFileDialog::getSaveFileName(this, tr("保存配置"), "./ini/in/", tr("(*.ini)"),&filter/*,QFileDialog::DontUseNativeDialog*/);//若不存在文件，则创建
+
+    qDebug()<<"保存文件"<<aFileName;
+    QSettings settings(aFileName, QSettings:: IniFormat);
+    settings.setValue("data", QVariant::fromValue(inputTag));
+#endif
+}
+
+void MainWindow::on_LoadTarg_clicked()
+{
+#if 0
+    QDir directory;
+    directory.setPath("/ini");  //设置文件路径
+
+    QStringList filter;
+    filter<<"*.ini";   //设置文件夹过滤，只取.ini文件
+
+    QStringList allFiles=  directory.entryList(filter);   //列出所过满足过滤规则的文件名
+#else
+    QString  aFileName=     QFileDialog::getOpenFileName(nullptr,tr("打开配置"),"./ini/in/","ini files (*.ini)",nullptr,QFileDialog::DontUseNativeDialog);
+    QSettings settings(aFileName, QSettings:: IniFormat);
+    QList<int> TargList = settings.value("data").value<QList<int> >();
+    qDebug()<<"打开list"<<TargList;
+    if(!TargList.empty())
+    {
+        updateTreeView(true,TargList);
+    }
+#endif
+}
+
+void MainWindow::on_out_save_clicked()
+{
+    qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
+
+    //保存当前选项
+    QString filter ="(*.ini)";
+    QString aFileName = QFileDialog::getSaveFileName(this, tr("保存配置"), "./ini/out/", tr("(*.ini)"),&filter/*,QFileDialog::DontUseNativeDialog*/);//若不存在文件，则创建
+
+    qDebug()<<"保存文件"<<aFileName<<outputTag;
+    QSettings settings(aFileName, QSettings:: IniFormat);
+    settings.setValue("data", QVariant::fromValue(outputTag));
+}
+
+void MainWindow::on_out_load_clicked()
+{
+    QString  aFileName=     QFileDialog::getOpenFileName(nullptr,tr("打开配置"),"./ini/out/","ini files (*.ini)",nullptr,QFileDialog::DontUseNativeDialog);
+    QSettings settings(aFileName, QSettings:: IniFormat);
+    QList<int> TargList = settings.value("data").value<QList<int> >();
+    qDebug()<<"打开list"<<TargList;
+    if(!TargList.empty())
+    {
+        updateTreeView(false,TargList);
     }
 }

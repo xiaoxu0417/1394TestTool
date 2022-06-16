@@ -3,18 +3,20 @@
 void* CDataControl::intputdata = nullptr;
 int CDataControl::inputdatalength = 0;
 
-CDataControl::CDataControl(int b, int e, int o,int datatype,bool io,int length)
+CDataControl::CDataControl(int b, int e, int o,int datatype,bool io,int length,QMap <int,QString> meaning)
 {
     beginbit = b;
     endbit = e;
     offset = o;
     this->datatype = datatype;
-    this->io = io;
+    this->m_io = io;
     if(!intputdata)
     {
         intputdata = (void*)malloc(sizeof(int)*length);
         memset(intputdata,0x0,sizeof(int)*length);
     }
+
+    m_meaning = meaning;
 
     if(io == false)
     {
@@ -26,9 +28,13 @@ void CDataControl::slot_onInputDataFinished()
 {
     qDebug()<<beginbit <<" "<<endbit <<" "<< offset <<" data finish";
     //if(inputstr != "0")
+
+    bool ret = isVaild();
+    if(!ret)
     {
-        bool ret = isVaild();
+        emit updateLineEdit("0");
     }
+
 
 }
 
@@ -42,7 +48,7 @@ void CDataControl::slot_updateOutputData(QVariant var)
 {
     int ret = 10;
     //更新输出端数据
-    qDebug()<<"update output! "<<io;
+    qDebug()<<"update output! "<<m_io;
     struct testdata_out data = var.value<struct testdata_out>();
     int *p = (int *)&data;
     unsigned int bits = endbit - beginbit + 1;
@@ -82,17 +88,18 @@ void CDataControl::setDatalength(int value)
 
 bool CDataControl::getIo() const
 {
-    return io;
+    return m_io;
 }
 
 void CDataControl::setIo(bool value)
 {
-    io = value;
+    m_io = value;
 }
 
 bool CDataControl::isVaild()
 {
     bool ret = false;
+    QString meaning = "";
     //先不考虑大小端
     int bits = endbit - beginbit + 1;
     if(bits < 0)
@@ -121,7 +128,15 @@ bool CDataControl::isVaild()
         {
             qDebug()<<"SINT 数值越界";
             ret_int = 0;
+            meaning = "SINT error";
+            ret = false;
         }
+        else
+        {
+            ret = true;
+        }
+        meaning = m_meaning[ret_int];
+
         //根据begin end offset 和ret_int 修改总线数据
         p2 = (int *)intputdata + offset;
         head = (0x1 <<(32 - endbit - 1)) - 1;
@@ -136,11 +151,19 @@ bool CDataControl::isVaild()
     case 1:
         ret_unint = inputstr.toUInt();
 
-        if((ret_unint > (0x1<<bits)) || (ret_unint < 0))
+        if((ret_unint >= (0x1<<bits)) || (ret_unint < 0))
         {
             qDebug()<<"UINT 数值越界";
             ret_unint = 0;
+            meaning = "UINT error";
+            ret = false;
         }
+        else
+        {
+            meaning = m_meaning[ret_unint];
+            ret = true;
+        }
+
         p = (unsigned int *)intputdata + offset;
         head = (0x1 <<(32 - endbit - 1)) - 1;
         head = head << (endbit + 1);
@@ -156,14 +179,22 @@ bool CDataControl::isVaild()
         if(bits != 32)
         {
             qDebug()<<"FLOAT 位数错误";
+            meaning = "Float越界";
+            ret = false;
+        }
+        else
+        {
+            ret = true;
         }
         ret_float = inputstr.toFloat();
         pf = (float *)intputdata + offset;
         *pf = ret_float;
-        ret = true;
+
         break;
     }
 
+
+    emit updateMeaning(meaning);
     return ret;
 }
 

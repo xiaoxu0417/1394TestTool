@@ -16,6 +16,11 @@ public:
     bool getBNewdata() const;
     void setBNewdata(bool value);
 
+
+
+    unsigned int getCount() const;
+    void setCount(unsigned int value);
+
 signals:
     void running(QVariant var);//接口程序运行信号,此信号通知cdatacontrol更新输出数据
 
@@ -28,6 +33,7 @@ private:
     struct testdata indata;
     struct testdata_out outdata;
     struct testdata_out lastoutdata;
+    unsigned int count;
 };
 
 #endif // PROCESSTHREAD_H
