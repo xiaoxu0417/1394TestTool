@@ -40,14 +40,17 @@
 	<ICD type="output">
 		<SYS sysname = "fire">
 			<field uiBitBegin="0" uiBitEnd="0" stFieldName="气压高度表决值有效字" stByteOffset="0000" dataType="UINT" >
-				<mean strMean="0-无效" strValue="0"/>
-				<mean strMean="1-有效" strValue="1"/>
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
 			<field uiBitBegin="1" uiBitEnd="16" stFieldName="气压高度1" stByteOffset="0000" dataType="UINT" >
 			</field>
 			<field uiBitBegin="17" uiBitEnd="31" stFieldName="气压高度2" stByteOffset="0000" dataType="UINT" >
 			</field>
 			<field uiBitBegin="0" uiBitEnd="31" stFieldName="引起压力" stByteOffset="0001" dataType="SINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="31" stFieldName="表决值" stByteOffset="0002" dataType="FLOAT" >
+				<mean strMean="大于100小于200" strValue="0"/>				
 			</field>
 		</SYS>
 	</ICD>

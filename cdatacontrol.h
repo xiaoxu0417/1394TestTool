@@ -6,6 +6,8 @@
 #include "def.h"
 #include <QMessageBox>
 
+#define VAILD_STYLE     ("QLabel{background:#00CC00;}")
+#define INVAILD_STYLE   ("QLabel{background:#FF6666;}")
 class CDataControl:public QObject
 {
     Q_OBJECT
@@ -24,10 +26,13 @@ public:
     static int getDatalength();
     static void setDatalength(int value);
 
+    void updateStyle(QString mean);
+
 signals:
     //void updatedata();
     void testsetOutPutdata(QString);
     void updateMeaning(QString);
+    void updateMeaningstyle(QString);
     void updateLineEdit(QString);
 
 private slots:

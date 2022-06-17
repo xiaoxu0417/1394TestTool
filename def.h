@@ -23,6 +23,7 @@ struct testdata_out
     unsigned int c:15;
 
     int d;
+    float e;
 };
 
 Q_DECLARE_METATYPE(testdata_out)

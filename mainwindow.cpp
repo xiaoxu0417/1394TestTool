@@ -138,7 +138,8 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             QLabel *LabelMeaning = new QLabel(widget);
             LabelMeaning->setText(pItem->getInitMeaning());
             LabelMeaning->setFixedWidth(60);
-            LabelMeaning->toolTip();
+            LabelMeaning->setToolTip(pItem->getInitMeaning());//鼠标悬停信息
+            //LabelMeaning->setStyleSheet("QLabel{background:#F50000;}");
 
             Label->setFrameShape(QFrame::Box);
 
@@ -149,6 +150,8 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             //绑定每个lineEdit的槽函数
             CDataControl *Ctl = new CDataControl(pItem->getBitbegin(),pItem->getBitend(),pItem->getOffset(),pItem->getDatatype(),pItem->getB_io(),inputword,pItem->getMeaningMap());
 
+            connect(Ctl,SIGNAL(updateMeaning(QString)),LabelMeaning,SLOT(setText(QString)));
+            connect(Ctl,SIGNAL(updateMeaningstyle(QString)),LabelMeaning,SLOT(setStyleSheet(QString)));
             //输入
             if(pItem->getB_io())
             {
@@ -156,7 +159,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
                 connect(LineEdit,SIGNAL(editingFinished()),Ctl,SLOT(slot_onInputDataFinished()));
                 connect(this,SIGNAL(ClearAllData()),Ctl,SLOT(slot_clearalldata()));
                 connect(this,SIGNAL(ClearAllData(QString)),LineEdit,SLOT(setText(QString)));//清除
-                connect(Ctl,SIGNAL(updateMeaning(QString)),LabelMeaning,SLOT(setText(QString)));
+
                 connect(Ctl,SIGNAL(updateLineEdit(QString)),LineEdit,SLOT(setText(QString)));
             }
             else//输出数据,不可编辑
@@ -466,15 +469,7 @@ void MainWindow::loadxml()
                             QString dataType =  elemfield.attribute("dataType");
                             //获取字
                             QString stByteOffset = elemfield.attribute("stByteOffset");
-                            //获取意义
-                            QDomNodeList listValue = nodefield.childNodes();
-                            for(int j =0;j<listValue.size();j++)
-                            {
-                                QDomNode nodeValue = listValue.at(j);
-                                QDomElement elemValue = nodeValue.toElement();
-                                QString meaning = elemValue.attribute("strMean");
-                                QString value = elemValue.attribute("strValue");
-                            }
+
                             auto ch = new TreeWidgetItemEx();
                             outputindex++;
                             show_index_out++;
@@ -486,6 +481,16 @@ void MainWindow::loadxml()
                             ch->setDatatype(dataType);
                             ch->setCheckState(0,Qt::Unchecked);//默认没有check box
                             ch->setB_io(false);
+                            //获取意义
+                            QDomNodeList listValue = nodefield.childNodes();
+                            for(int j =0;j<listValue.size();j++)
+                            {
+                                QDomNode nodeValue = listValue.at(j);
+                                QDomElement elemValue = nodeValue.toElement();
+                                QString meaning = elemValue.attribute("strMean");
+                                QString value = elemValue.attribute("strValue");
+                                ch->setMeaning(value,meaning);
+                            }
                             itemSYS->addChild(ch);
                         }
                     }

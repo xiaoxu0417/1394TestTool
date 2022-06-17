@@ -99,7 +99,14 @@ QString TreeWidgetItemEx::getInitMeaning()
         QMap<int, QString>::const_iterator i;
         for( i=m_meaning.constBegin(); i!=m_meaning.constEnd(); ++i)
         {
-            ret += QString::number(i.key()) + ":" + i.value() + ";";
+            if(m_datatype == 1 || m_datatype == 2)
+            {
+                ret += QString::number(i.key()) + ":" + i.value() + ";";
+            }
+            else
+            {
+                ret += i.value() + ";";
+            }
         }
     }
     else

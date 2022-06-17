@@ -47,6 +47,7 @@ void CDataControl::slot_onInputDataChange(QString txt)
 void CDataControl::slot_updateOutputData(QVariant var)
 {
     int ret = 10;
+    QString mean;
     //更新输出端数据
     qDebug()<<"update output! "<<m_io;
     struct testdata_out data = var.value<struct testdata_out>();
@@ -60,6 +61,14 @@ void CDataControl::slot_updateOutputData(QVariant var)
 
     //当process程序运行起来时,每拍让输出数据更新
     emit testsetOutPutdata(QString::number(ret));
+
+    if(datatype == 1 || datatype == 2)
+    {
+        mean = m_meaning[ret];
+
+        updateStyle(mean);
+        //float类型 还是使用初始化meaning,更新是不变
+    }
 }
 
 //清除所有数据
@@ -84,6 +93,19 @@ int CDataControl::getDatalength()
 void CDataControl::setDatalength(int value)
 {
     inputdatalength = value;
+}
+
+void CDataControl::updateStyle(QString mean)
+{
+    if( mean == QString::fromLocal8Bit("有效") || mean == QString::fromLocal8Bit("正常"))
+    {
+        emit updateMeaningstyle(VAILD_STYLE);
+    }
+    else if(mean == QString::fromLocal8Bit("无效") || mean == QString::fromLocal8Bit("故障"))
+    {
+        emit updateMeaningstyle(INVAILD_STYLE);
+    }
+    emit updateMeaning(mean);
 }
 
 bool CDataControl::getIo() const
@@ -136,6 +158,7 @@ bool CDataControl::isVaild()
             ret = true;
         }
         meaning = m_meaning[ret_int];
+        updateStyle(meaning);
 
         //根据begin end offset 和ret_int 修改总线数据
         p2 = (int *)intputdata + offset;
@@ -163,6 +186,7 @@ bool CDataControl::isVaild()
             meaning = m_meaning[ret_unint];
             ret = true;
         }
+        updateStyle(meaning);
 
         p = (unsigned int *)intputdata + offset;
         head = (0x1 <<(32 - endbit - 1)) - 1;
@@ -180,6 +204,7 @@ bool CDataControl::isVaild()
         {
             qDebug()<<"FLOAT 位数错误";
             meaning = "Float越界";
+            emit updateMeaning(meaning);
             ret = false;
         }
         else
@@ -193,8 +218,6 @@ bool CDataControl::isVaild()
         break;
     }
 
-
-    emit updateMeaning(meaning);
     return ret;
 }
 
