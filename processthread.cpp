@@ -3,20 +3,42 @@
 ProcessThread::ProcessThread()
 {
     bRun = true;
-    bNewdata = false;
     memset(&indata,0x0,sizeof(indata));
     memset(&outdata,0x0,sizeof (outdata));
     memset(&lastoutdata,0x0,sizeof(lastoutdata));
-    count = 0;
+    TimerCount = 0;
+    bConstant = true;
+    ConstantCount = 0;
+    ConstantTarget = 0;
+    ConstantCountStart = false;
 }
 
 void ProcessThread::run()
 {
+    //测试下,线程启动后,设置run false,之后为什么不run 了?
     while(bRun)
     {
         if(indata.e1 != 0)
         {
             //qDebug()<<"输入"<<data.e1;
+        }
+        if(bConstant)
+        {
+
+        }
+        else if(ConstantCountStart == true)
+        {
+            //计算拍数
+            if(ConstantCount > ConstantTarget)
+            {
+                //结束
+                bRun = false;
+            }
+            else
+            {
+                ConstantCount++;
+                emit updateCount(ConstantCount);
+            }
         }
 
 //        QTime begin;
@@ -35,7 +57,7 @@ void ProcessThread::run()
         outdata.c = indata.e2*10;
 
         //运行
-        count++;
+        TimerCount++;
         Sleep(8);
         //qDebug()<<"thread"<<count;
 
@@ -53,16 +75,6 @@ void ProcessThread::run()
     }
 }
 
-bool ProcessThread::getBNewdata() const
-{
-    return bNewdata;
-}
-
-void ProcessThread::setBNewdata(bool value)
-{
-    bNewdata = value;
-}
-
 void ProcessThread::getNewInpoputData()
 {
     //调用接口前,获取输入数据,并拷贝到data中
@@ -73,17 +85,56 @@ void ProcessThread::getNewInpoputData()
     }
     else
     {
-        bNewdata = true;
         memcpy(&indata,p,sizeof(indata));
     }
 }
 
-unsigned int ProcessThread::getCount() const
+bool ProcessThread::getConstantCountStart() const
 {
-    return count;
+    return ConstantCountStart;
 }
 
-void ProcessThread::setCount(unsigned int value)
+void ProcessThread::setConstantCountStart(bool value)
 {
-    count = value;
+    ConstantCountStart = value;
+}
+
+bool ProcessThread::getBRun() const
+{
+    return bRun;
+}
+
+void ProcessThread::setBRun(bool value)
+{
+    bRun = value;
+}
+
+unsigned int ProcessThread::getConstantTarget() const
+{
+    return ConstantTarget;
+}
+
+void ProcessThread::setConstantTarget(unsigned int value)
+{
+    ConstantTarget = value;
+}
+
+bool ProcessThread::getBConstant() const
+{
+    return bConstant;
+}
+
+void ProcessThread::setBConstant(bool value)
+{
+    bConstant = value;
+}
+
+unsigned int ProcessThread::getTimeCount() const
+{
+    return TimerCount;
+}
+
+void ProcessThread::setTimeCount(unsigned int value)
+{
+    TimerCount = value;
 }

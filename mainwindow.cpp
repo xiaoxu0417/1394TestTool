@@ -12,18 +12,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    bRun = true;
     inputword = 0;
     bUseCounting = false;
     m_period = 12.5;
-    if(bUseCounting)
-    {
-        ui->checkBox->setCheckState(Qt::Checked);
-    }
-    else
-    {
-        ui->checkBox->setCheckState(Qt::Unchecked);
-    }
+    ConstantTarget = 0;
+
 
     countTimer = new QTimer(this);
     countTimer->setInterval(1000);
@@ -36,9 +29,11 @@ MainWindow::MainWindow(QWidget *parent)
     //绑定槽函数
     connectWidget();
 
-    ProThread = new ProcessThread();
-    connect(this,SIGNAL(newInputdata2Proce()),ProThread,SLOT(getNewInpoputData()));
-    ProThread->start();
+    mProThread = new ProcessThread();
+    connect(this,SIGNAL(newInputdata2Proce()),mProThread,SLOT(getNewInpoputData()));
+    connect(mProThread,SIGNAL(updateCount(int)),ui->labelCount,SLOT((setText(int))));
+
+    mProThread->start();
 }
 
 MainWindow::~MainWindow()
@@ -166,7 +161,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             else//输出数据,不可编辑
             {
                 connect(Ctl,SIGNAL(testsetOutPutdata(QString)),LineEdit,SLOT(setText(QString)));//显示输出数据
-                connect(ProThread,SIGNAL(running(QVariant)),Ctl,SLOT(slot_updateOutputData(QVariant)));//每拍发出running信号,去更新输出数据的值
+                connect(mProThread,SIGNAL(running(QVariant)),Ctl,SLOT(slot_updateOutputData(QVariant)));//每拍发出running信号,去更新输出数据的值
                 LineEdit->setEnabled(false);
             }
 
@@ -306,7 +301,7 @@ void MainWindow::doTimerService()
     end = QTime::currentTime();//获取当前时间
     int m_iTestTime = begin.msecsTo(end)/1000;
 #else
-    unsigned int count = ProThread->getCount();
+    unsigned int count = mProThread->getTimeCount();
     int m_iTestTime = (count * period())/1000;
 #endif
     ulong ulHour = m_iTestTime / 3600;
@@ -544,6 +539,24 @@ void MainWindow::updateTreeView(bool in,QList<int> List)
 
 }
 
+void MainWindow::initUI()
+{
+    if(bUseCounting)
+    {
+        ui->checkBox->setCheckState(Qt::Checked);
+    }
+    else
+    {
+        ui->checkBox->setCheckState(Qt::Unchecked);
+    }
+
+    ui->lineEditCount->setText("-");
+    ui->lineEditCount->setEnabled(false);
+    ui->pushButtonCount->setEnabled(false);
+    ui->labelCount->setText("-");
+    ui->labelCount->setEnabled(false);
+}
+
 void MainWindow::on_checkBox_stateChanged(int arg1)
 {
     bUseCounting = arg1 == 2?true:false;
@@ -581,13 +594,23 @@ void MainWindow::on_pushButton_process_clicked()
 //        qDebug()<<"输入"<<data.e1;
 //    }
 
-    emit newInputdata2Proce();
+    mProThread->setBRun(true);
+
+    if(!mProThread->getBConstant())
+    {
+        mProThread->setConstantTarget(0);
+        mProThread->setConstantCountStart(true);
+    }
+    else
+    {
+        mProThread->setConstantCountStart(false);
+    }
 
     if(bUseCounting)
     {
 
         countTimer->start();
-        ProThread->setCount(0);
+        mProThread->setTimeCount(0);
 
         //begin = QTime::currentTime();//获取当前时间
     }
@@ -595,11 +618,17 @@ void MainWindow::on_pushButton_process_clicked()
     {
 
     }
-    //调用dll接口
 
-    //获取dll返回数据,并通知CDataControl更新输出数据
-    //emit running();
+    emit newInputdata2Proce();
+}
 
+void MainWindow::on_pushButton_stop_process_clicked()
+{
+    mProThread->setBRun(false);
+    if(!mProThread->getBConstant())
+    {
+        mProThread->setConstantCountStart(false);
+    }
 }
 
 void MainWindow::on_pushButton_start_counting_clicked()
@@ -608,7 +637,7 @@ void MainWindow::on_pushButton_start_counting_clicked()
     {
         countTimer->start();
         //begin = QTime::currentTime();//获取当前时间
-        ProThread->setCount(0);
+        mProThread->setTimeCount(0);
 
         ui->pushButton_start_counting->setEnabled(false);
         ui->pushButton_stop_counting->setEnabled(true);
@@ -762,3 +791,38 @@ void MainWindow::setPeriod(float period)
 {
     m_period = period;
 }
+
+void MainWindow::on_checkBox_Constant_stateChanged(int arg1)
+{
+    //true
+    if(arg1 == 2)
+    {
+        mProThread->setBConstant(true);
+        ui->lineEditCount->setText("-");
+        ui->lineEditCount->setEnabled(false);
+        ui->pushButtonCount->setEnabled(false);
+        ui->labelCount->setText("-");
+        ui->labelCount->setEnabled(false);
+    }
+    else
+    {
+        mProThread->setBConstant(false);
+        ui->lineEditCount->setText("0");
+        ui->lineEditCount->setEnabled(true);
+        ui->pushButtonCount->setEnabled(true);
+        ui->labelCount->setText("0");
+        ui->labelCount->setEnabled(true);
+    }
+}
+
+void MainWindow::on_lineEditCount_textChanged(const QString &arg1)
+{
+    ConstantTarget = arg1.toUInt();
+}
+
+void MainWindow::on_pushButtonCount_clicked()
+{
+    mProThread->setConstantTarget(ConstantTarget);
+}
+
+

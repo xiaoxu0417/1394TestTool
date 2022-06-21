@@ -52,7 +52,7 @@ public:
 
     void updateTreeView(bool in,QList<int> List);
 
-
+    void initUI();
 
     float period() const;
     void setPeriod(float period);
@@ -90,6 +90,14 @@ private slots:
 
     void on_radioButton_12P5_clicked();
 
+    void on_checkBox_Constant_stateChanged(int arg1);
+
+    void on_lineEditCount_textChanged(const QString &arg1);
+
+    void on_pushButtonCount_clicked();
+
+    void on_pushButton_stop_process_clicked();
+
 private:
     Ui::MainWindow *ui;
     QStandardItemModel *input_Model;// ‰»Î
@@ -100,8 +108,7 @@ private:
     //QTime end;
     int inputword;
 
-    bool bRun;
-    ProcessThread *ProThread;
+    ProcessThread *mProThread;
 
     unsigned int inputindex = 0;
     unsigned int outputindex = 0;
@@ -110,5 +117,6 @@ private:
     QList <int>outputTag;
 
     float m_period;
+    unsigned int ConstantTarget;
 };
 #endif // MAINWINDOW_H
