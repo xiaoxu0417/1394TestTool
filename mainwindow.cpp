@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     bRun = true;
     inputword = 0;
     bUseCounting = false;
+    m_period = 12.5;
     if(bUseCounting)
     {
         ui->checkBox->setCheckState(Qt::Checked);
@@ -306,7 +307,7 @@ void MainWindow::doTimerService()
     int m_iTestTime = begin.msecsTo(end)/1000;
 #else
     unsigned int count = ProThread->getCount();
-    int m_iTestTime = (count * 12.5)/1000;
+    int m_iTestTime = (count * period())/1000;
 #endif
     ulong ulHour = m_iTestTime / 3600;
     ulong ulMinute = (m_iTestTime - ulHour * 3600) / 60;
@@ -344,9 +345,9 @@ void MainWindow::loadxml()
     }
 
     QStringList in_head;
-    in_head << tr("数据输入:");
+    in_head << tr("输入数据:");
     QStringList out_head;
-    out_head << tr("数据输输出:");
+    out_head << tr("输出数据:");
 
     //根节点:DataBase
     QDomNode root = doc.documentElement();
@@ -738,4 +739,26 @@ void MainWindow::on_out_load_clicked()
     {
         updateTreeView(false,TargList);
     }
+}
+
+void MainWindow::on_radioButton_clicked()
+{
+    qDebug()<<"10ms";
+    setPeriod(10.0);
+}
+
+void MainWindow::on_radioButton_12P5_clicked()
+{
+    qDebug()<<"12.5ms";
+    setPeriod(12.5);
+}
+
+float MainWindow::period() const
+{
+    return m_period;
+}
+
+void MainWindow::setPeriod(float period)
+{
+    m_period = period;
 }

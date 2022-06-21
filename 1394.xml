@@ -16,7 +16,7 @@
 			</field>
 			<field uiBitBegin="16" uiBitEnd="31" stFieldName="温度2" stByteOffset="0001" dataType="SINT" >
 			</field>
-			<field uiBitBegin="0" uiBitEnd="31" stFieldName="高度" stByteOffset="0002" dataType="FLOAT" >
+			<field uiBitBegin="0" uiBitEnd="31" stFieldName="高度" stByteOffset="0002" dataType="UINT" >
 				<mean strMean="未工作" strValue="0"/>
 				<mean strMean="高档位" strValue="1"/>
 				<mean strMean="中档位" strValue="2"/>

@@ -105,6 +105,10 @@ void CDataControl::updateStyle(QString mean)
     {
         emit updateMeaningstyle(INVAILD_STYLE);
     }
+    else
+    {
+        emit updateMeaningstyle(NULL_STYLE);
+    }
     emit updateMeaning(mean);
 }
 
@@ -174,7 +178,23 @@ bool CDataControl::isVaild()
     case 1:
         ret_unint = inputstr.toUInt();
 
-        if((ret_unint >= (0x1<<bits)) || (ret_unint < 0))
+        //32 uint容错,按照移位操作为0
+        if(bits == 32)
+        {
+            if(ret_unint > ((0x1 << 32)-1))
+            {
+                qDebug()<<"32 UINT 数值越界";
+                ret_unint = 0;
+                meaning = "UINT error";
+                ret = false;
+            }
+            else
+            {
+                meaning = m_meaning[ret_unint];
+                ret = true;
+            }
+        }
+        else if(ret_unint > ((0x1<<(int)bits)-1) /*|| (ret_unint < 0)*/)
         {
             qDebug()<<"UINT 数值越界";
             ret_unint = 0;

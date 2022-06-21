@@ -42,7 +42,7 @@ public:
 
     void delteInputListView(QString text);
 
-    //åˆ é™¤
+    //É¾³ý
     void deleteListWidgetItem(QString text, bool io);
     //void deleteListWidgetItem(int row);
 
@@ -51,6 +51,11 @@ public:
     void loadxml();
 
     void updateTreeView(bool in,QList<int> List);
+
+
+
+    float period() const;
+    void setPeriod(float period);
 
 signals:
     void ClearAllData();
@@ -81,12 +86,16 @@ private slots:
 
     void on_out_load_clicked();
 
+    void on_radioButton_clicked();
+
+    void on_radioButton_12P5_clicked();
+
 private:
     Ui::MainWindow *ui;
-    QStandardItemModel *input_Model;//è¾“å…¥
-    QStandardItemModel *output_Model;//è¾“å‡º
+    QStandardItemModel *input_Model;//ÊäÈë
+    QStandardItemModel *output_Model;//Êä³ö
     bool bUseCounting;
-    QTimer *countTimer;//è®¡æ—¶å™¨
+    QTimer *countTimer;//¼ÆÊ±Æ÷
     //QTime begin;
     //QTime end;
     int inputword;
@@ -99,5 +108,7 @@ private:
 
     QList <int>inputTag;
     QList <int>outputTag;
+
+    float m_period;
 };
 #endif // MAINWINDOW_H

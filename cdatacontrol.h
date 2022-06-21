@@ -8,6 +8,7 @@
 
 #define VAILD_STYLE     ("QLabel{background:#00CC00;}")
 #define INVAILD_STYLE   ("QLabel{background:#FF6666;}")
+#define NULL_STYLE      ("QLabel{background:#FFFFFF;}")
 class CDataControl:public QObject
 {
     Q_OBJECT
