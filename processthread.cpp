@@ -2,7 +2,7 @@
 
 ProcessThread::ProcessThread()
 {
-    bRun = true;
+    bRun = false;
     memset(&indata,0x0,sizeof(indata));
     memset(&outdata,0x0,sizeof (outdata));
     memset(&lastoutdata,0x0,sizeof(lastoutdata));
@@ -16,28 +16,43 @@ ProcessThread::ProcessThread()
 void ProcessThread::run()
 {
     //测试下,线程启动后,设置run false,之后为什么不run 了?
-    while(bRun)
+    while(1)
     {
+        if(!bRun)
+        {
+            continue;
+        }
+
         if(indata.e1 != 0)
         {
             //qDebug()<<"输入"<<data.e1;
         }
         if(bConstant)
         {
-
+            qDebug()<<"连续"<<QTime::currentTime();
+            Process();
+            emit updateCount(QString::number(TimerCount),false);
         }
         else if(ConstantCountStart == true)
         {
             //计算拍数
-            if(ConstantCount > ConstantTarget)
+            if(ConstantCount >= ConstantTarget)
             {
                 //结束
                 bRun = false;
+                qDebug()<<"结束"<<QTime::currentTime()<<ConstantCount<<ConstantTarget;
+                emit updateCount(QString::number(ConstantCount),true);
+                ConstantTarget = 0;
+                ConstantCount = 0;
             }
             else
             {
-                ConstantCount++;
-                emit updateCount(ConstantCount);
+                ConstantCount++;                
+                emit updateCount(QString::number(ConstantCount),false);
+
+                qDebug()<<"run"<<ConstantCount<<QTime::currentTime();
+
+                Process();
             }
         }
 
@@ -51,27 +66,7 @@ void ProcessThread::run()
 //        {
 //            Sleep(12.5 - m_iTestTime);//毫秒
 //        }
-        //indata入参
-        outdata.a = indata.a;
-        outdata.b = indata.e1*10;
-        outdata.c = indata.e2*10;
 
-        //运行
-        TimerCount++;
-        Sleep(8);
-        //qDebug()<<"thread"<<count;
-
-
-        outdata.d = indata.f*10;
-        //outdata出参
-
-        if(memcmp(&lastoutdata,&outdata,sizeof (outdata)))
-        {
-            memcpy(&lastoutdata,&outdata,sizeof (outdata));
-            QVariant data;
-            data.setValue(outdata);
-            emit running(data);
-        }
     }
 }
 
@@ -97,6 +92,30 @@ bool ProcessThread::getConstantCountStart() const
 void ProcessThread::setConstantCountStart(bool value)
 {
     ConstantCountStart = value;
+}
+
+void ProcessThread::Process()
+{
+    //indata入参
+    outdata.a = indata.a;
+    outdata.b = indata.e1*10;
+    outdata.c = indata.e2*10;
+
+    //运行
+    TimerCount++;
+    //msleep(8);//qt thread sleep
+    sleep(1);//debug
+
+    outdata.d = indata.f*10;
+    //outdata出参
+
+    if(memcmp(&lastoutdata,&outdata,sizeof (outdata)))
+    {
+        memcpy(&lastoutdata,&outdata,sizeof (outdata));
+        QVariant data;
+        data.setValue(outdata);
+        emit running(data);
+    }
 }
 
 bool ProcessThread::getBRun() const

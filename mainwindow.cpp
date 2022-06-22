@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 extern "C"
@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_period = 12.5;
     ConstantTarget = 0;
 
+    initUI();
 
     countTimer = new QTimer(this);
     countTimer->setInterval(1000);
@@ -31,7 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     mProThread = new ProcessThread();
     connect(this,SIGNAL(newInputdata2Proce()),mProThread,SLOT(getNewInpoputData()));
-    connect(mProThread,SIGNAL(updateCount(int)),ui->labelCount,SLOT((setText(int))));
+    //connect(mProThread,SIGNAL(updateCount(QString)),ui->labelCount,SLOT(setText(QString)));
+    connect(mProThread,SIGNAL(updateCount(QString,bool)),this,SLOT(on_updatelabelcount(QString,bool)));
 
     mProThread->start();
 }
@@ -291,6 +293,7 @@ void MainWindow::connectWidget()
     //connect(ui->inputtreeWidget, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(onItemChanged_In(QTreeWidgetItem *, int )));
 
     connect(ui->outputtreeWidget, &QTreeWidget::itemChanged, this, &MainWindow::onItemChanged_In);
+
 }
 
 //
@@ -340,9 +343,9 @@ void MainWindow::loadxml()
     }
 
     QStringList in_head;
-    in_head << tr("输入数据:");
+    in_head << tr("input data:");
     QStringList out_head;
-    out_head << tr("输出数据:");
+    out_head << tr("output data:");
 
     //根节点:DataBase
     QDomNode root = doc.documentElement();
@@ -550,11 +553,7 @@ void MainWindow::initUI()
         ui->checkBox->setCheckState(Qt::Unchecked);
     }
 
-    ui->lineEditCount->setText("-");
-    ui->lineEditCount->setEnabled(false);
-    ui->pushButtonCount->setEnabled(false);
-    ui->labelCount->setText("-");
-    ui->labelCount->setEnabled(false);
+    setCountView(true);
 }
 
 void MainWindow::on_checkBox_stateChanged(int arg1)
@@ -595,10 +594,11 @@ void MainWindow::on_pushButton_process_clicked()
 //    }
 
     mProThread->setBRun(true);
+    mProThread->setTimeCount(0);
 
     if(!mProThread->getBConstant())
     {
-        mProThread->setConstantTarget(0);
+        mProThread->setConstantTarget(ConstantTarget);
         mProThread->setConstantCountStart(true);
     }
     else
@@ -606,20 +606,21 @@ void MainWindow::on_pushButton_process_clicked()
         mProThread->setConstantCountStart(false);
     }
 
-    if(bUseCounting)
+    if(bUseCounting)//输入时计时
     {
-
         countTimer->start();
         mProThread->setTimeCount(0);
-
-        //begin = QTime::currentTime();//获取当前时间
     }
     else
     {
 
     }
 
+    //通知线程去更新数据
     emit newInputdata2Proce();
+    ui->pushButton_process->setEnabled(false);
+    ui->pushButton_stop_process->setEnabled(true);
+    ui->checkBox_Constant->setEnabled(false);//开始运行后,不允许修改持续状态
 }
 
 void MainWindow::on_pushButton_stop_process_clicked()
@@ -628,6 +629,20 @@ void MainWindow::on_pushButton_stop_process_clicked()
     if(!mProThread->getBConstant())
     {
         mProThread->setConstantCountStart(false);
+    }
+    ui->pushButton_process->setEnabled(true);
+    ui->pushButton_stop_process->setEnabled(false);
+    ui->checkBox_Constant->setEnabled(true);//结束运行后,恢复持续状态
+}
+
+void MainWindow::on_updatelabelcount(QString abc,bool b)
+{
+    ui->labelCount->setText(abc);
+    if(b)//结束了
+    {
+        ui->pushButton_process->setEnabled(true);
+        ui->pushButton_stop_process->setEnabled(true);
+        ui->checkBox_Constant->setEnabled(true);//结束运行后,恢复持续状态
     }
 }
 
@@ -792,26 +807,50 @@ void MainWindow::setPeriod(float period)
     m_period = period;
 }
 
-void MainWindow::on_checkBox_Constant_stateChanged(int arg1)
+void MainWindow::setCountView(bool vaild)
 {
-    //true
-    if(arg1 == 2)
+    if(vaild)
     {
         mProThread->setBConstant(true);
+
         ui->lineEditCount->setText("-");
         ui->lineEditCount->setEnabled(false);
-        ui->pushButtonCount->setEnabled(false);
-        ui->labelCount->setText("-");
-        ui->labelCount->setEnabled(false);
+//        ui->pushButtonCount->setEnabled(false);
+//        ui->labelCount->setText("-");
+//        ui->labelCount->setEnabled(false);
     }
     else
     {
         mProThread->setBConstant(false);
+
         ui->lineEditCount->setText("0");
         ui->lineEditCount->setEnabled(true);
-        ui->pushButtonCount->setEnabled(true);
-        ui->labelCount->setText("0");
-        ui->labelCount->setEnabled(true);
+//        ui->pushButtonCount->setEnabled(true);
+//        ui->labelCount->setText("0");
+//        ui->labelCount->setEnabled(true);
+    }
+}
+
+void MainWindow::on_checkBox_Constant_stateChanged(int arg1)
+{
+    //如果此时程序在跑,需要先停止
+    if(mProThread->getBRun())
+    {
+        //qDebug()<<ui->checkBox->isChecked();
+        QMessageBox message(QMessageBox::NoIcon,  "","please stop frist!");
+        //message.exec();
+    }
+    else
+    {
+        //true
+        if(arg1 == 2)
+        {
+            setCountView(true);
+        }
+        else
+        {
+            setCountView(false);
+        }
     }
 }
 
@@ -823,6 +862,7 @@ void MainWindow::on_lineEditCount_textChanged(const QString &arg1)
 void MainWindow::on_pushButtonCount_clicked()
 {
     mProThread->setConstantTarget(ConstantTarget);
+    qDebug()<<"start"<<ConstantTarget;
 }
 
 

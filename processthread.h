@@ -28,9 +28,11 @@ public:
     bool getConstantCountStart() const;
     void setConstantCountStart(bool value);
 
+    void Process();
+
 signals:
     void running(QVariant var);//接口程序运行信号,此信号通知cdatacontrol更新输出数据
-    void updateCount(int);//通知主窗口更新拍数
+    void updateCount(QString,bool);//通知主窗口更新拍数
 
 private slots:
     void getNewInpoputData();//获取新的输入数据

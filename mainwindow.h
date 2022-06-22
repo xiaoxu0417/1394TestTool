@@ -57,6 +57,8 @@ public:
     float period() const;
     void setPeriod(float period);
 
+    void setCountView(bool vaild);
+
 signals:
     void ClearAllData();
     void ClearAllData(QString);
@@ -97,6 +99,8 @@ private slots:
     void on_pushButtonCount_clicked();
 
     void on_pushButton_stop_process_clicked();
+
+    void on_updatelabelcount(QString,bool);
 
 private:
     Ui::MainWindow *ui;
