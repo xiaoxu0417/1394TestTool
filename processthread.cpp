@@ -15,21 +15,21 @@ ProcessThread::ProcessThread()
 
 void ProcessThread::run()
 {
-    //测试下,线程启动后,设置run false,之后为什么不run 了?
     while(1)
     {
         if(!bRun)
         {
             continue;
         }
-
+#ifdef DEBUG_DATA
         if(indata.e1 != 0)
         {
             //qDebug()<<"输入"<<data.e1;
         }
+#endif
         if(bConstant)
         {
-            qDebug()<<"连续"<<QTime::currentTime();
+            qDebug()<<"连续"<<TimerCount;
             Process();
             emit updateCount(QString::number(TimerCount),false);
         }
@@ -96,17 +96,27 @@ void ProcessThread::setConstantCountStart(bool value)
 
 void ProcessThread::Process()
 {
+
+#ifdef DEBUG_DATA
     //indata入参
     outdata.a = indata.a;
     outdata.b = indata.e1*10;
     outdata.c = indata.e2*10;
-
+#endif
     //运行
     TimerCount++;
-    //msleep(8);//qt thread sleep
-    sleep(1);//debug
 
+#ifdef DEBUG_DATA
+    sleep(1);//debug
     outdata.d = indata.f*10;
+#else
+    int len = 0;
+
+    API_VMC_In((int*)&indata,sizeof (indata));
+    API_VMC_Process();
+    outdata = API_VMC_Out(&len);
+    msleep(8);//qt thread sleep
+#endif
     //outdata出参
 
     if(memcmp(&lastoutdata,&outdata,sizeof (outdata)))

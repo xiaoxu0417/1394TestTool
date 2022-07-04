@@ -16,7 +16,8 @@
 #include "TreeWidgetItemEx.h"
 #include "cdatacontrol.h"
 #include <QList>
-#include "def.h"
+//#include "def.h"
+#include "vmc_def.h"
 #include <windows.h>
 #include "processthread.h"
 #include <QMessageBox>

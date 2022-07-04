@@ -20,10 +20,19 @@ CDataControl::CDataControl(int b, int e, int o,int datatype,bool io,int length,Q
 
     if(io == false)
     {
-        //½âÎöÊı¾İ
+        //è§£ææ•°æ®
     }
 }
 
+CDataControl::~CDataControl()
+{
+    if(intputdata)
+    {
+        delete intputdata;
+        intputdata = nullptr;
+        qDebug()<<"exit";
+    }
+}
 void CDataControl::slot_onInputDataFinished()
 {
     qDebug()<<beginbit <<" "<<endbit <<" "<< offset <<" data finish";
@@ -34,8 +43,10 @@ void CDataControl::slot_onInputDataFinished()
     {
         emit updateLineEdit("0");
     }
-
-
+    else
+    {
+        emit updateDllInPutdata();
+    }
 }
 
 void CDataControl::slot_onInputDataChange(QString txt)
@@ -48,10 +59,10 @@ void CDataControl::slot_updateOutputData(QVariant var)
 {
     int ret = 10;
     QString mean;
-    //¸üĞÂÊä³ö¶ËÊı¾İ
+    //æ›´æ–°è¾“å‡ºç«¯æ•°æ®
     qDebug()<<"update output! "<<m_io;
-    struct testdata_out data = var.value<struct testdata_out>();
-    int *p = (int *)&data;
+    Output_vmc data = var.value<Output_vmc>();
+    unsigned int *p = (unsigned int *)&data;
     unsigned int bits = endbit - beginbit + 1;
     unsigned int left = ((0x1 << bits) - 1);
     unsigned int right = beginbit;
@@ -59,7 +70,7 @@ void CDataControl::slot_updateOutputData(QVariant var)
     //ret = ((*p) & right) >> right;
     ret = ((*p) >> right) & left;
 
-    //µ±process³ÌĞòÔËĞĞÆğÀ´Ê±,Ã¿ÅÄÈÃÊä³öÊı¾İ¸üĞÂ
+    //å½“processç¨‹åºè¿è¡Œèµ·æ¥æ—¶,æ¯æ‹è®©è¾“å‡ºæ•°æ®æ›´æ–°
     emit testsetOutPutdata(QString::number(ret));
 
     if(datatype == 1 || datatype == 2)
@@ -67,17 +78,20 @@ void CDataControl::slot_updateOutputData(QVariant var)
         mean = m_meaning[ret];
 
         updateStyle(mean);
-        //floatÀàĞÍ »¹ÊÇÊ¹ÓÃ³õÊ¼»¯meaning,¸üĞÂÊÇ²»±ä
+        //floatç±»å‹ è¿˜æ˜¯ä½¿ç”¨åˆå§‹åŒ–meaning,æ›´æ–°æ˜¯ä¸å˜
     }
 }
 
-//Çå³ıËùÓĞÊı¾İ
+//æ¸…é™¤æ‰€æœ‰æ•°æ®
 void CDataControl::slot_clearalldata()
 {
     memset(intputdata,  0x0,    sizeof(int)* inputdatalength);
-    //Ã¿Ò»¸öitem¶¼µ¯³ö,Ğ§¹û²»ºÃ
-//    QMessageBox message(QMessageBox::NoIcon,  "×¢Òâ",  "ÒÑÇåÁã!");
+    //æ¯ä¸€ä¸ªiteméƒ½å¼¹å‡º,æ•ˆæœä¸å¥½
+//    QMessageBox message(QMessageBox::NoIcon,  "æ³¨æ„",  "å·²æ¸…é›¶!");
 //    message.exec();
+    //0 is invaild
+    emit updateStyle(m_meaning[0]);
+    emit updateDllInPutdata();//
 }
 
 void CDataControl::setbitsdata()
@@ -97,11 +111,11 @@ void CDataControl::setDatalength(int value)
 
 void CDataControl::updateStyle(QString mean)
 {
-    if( mean == QString::fromLocal8Bit("ÓĞĞ§") || mean == QString::fromLocal8Bit("Õı³£"))
+    if( mean == QString::fromLocal8Bit("æœ‰æ•ˆ") || mean == QString::fromLocal8Bit("æ­£å¸¸"))
     {
         emit updateMeaningstyle(VAILD_STYLE);
     }
-    else if(mean == QString::fromLocal8Bit("ÎŞĞ§") || mean == QString::fromLocal8Bit("¹ÊÕÏ"))
+    else if(mean == QString::fromLocal8Bit("æ— æ•ˆ") || mean == QString::fromLocal8Bit("æ•…éšœ"))
     {
         emit updateMeaningstyle(INVAILD_STYLE);
     }
@@ -126,11 +140,11 @@ bool CDataControl::isVaild()
 {
     bool ret = false;
     QString meaning = "";
-    //ÏÈ²»¿¼ÂÇ´óĞ¡¶Ë
+    //å…ˆä¸è€ƒè™‘å¤§å°ç«¯
     int bits = endbit - beginbit + 1;
     if(bits < 0)
     {
-        qDebug()<<"Î»Óò´íÎó!"<<endbit<<" "<<beginbit;
+        qDebug()<<"ä½åŸŸé”™è¯¯!"<<endbit<<" "<<beginbit;
         return false;
     }
 
@@ -147,12 +161,12 @@ bool CDataControl::isVaild()
     unsigned int tail1 = 0;
     switch(datatype)
     {
-    //int,ÓĞ·ûºÅÊıºÍÎŞ·ûºÅÊıËã·¨Ò»ÖÂ
+    //int,æœ‰ç¬¦å·æ•°å’Œæ— ç¬¦å·æ•°ç®—æ³•ä¸€è‡´
     case 2:
         ret_int = inputstr.toInt();
         if(ret_int > (0x1<<bits)-1 || (ret_int < -1 * (0x1 << (bits))))
         {
-            qDebug()<<"SINT ÊıÖµÔ½½ç";
+            qDebug()<<"SINT error";
             ret_int = 0;
             meaning = "SINT error";
             ret = false;
@@ -164,7 +178,8 @@ bool CDataControl::isVaild()
         meaning = m_meaning[ret_int];
         updateStyle(meaning);
 
-        //¸ù¾İbegin end offset ºÍret_int ĞŞ¸Ä×ÜÏßÊı¾İ
+        //æ ¹æ®begin end offset å’Œret_int ä¿®æ”¹æ€»çº¿æ•°æ®
+        mutex.lock();
         p2 = (int *)intputdata + offset;
         head = (0x1 <<(32 - endbit - 1)) - 1;
         head = head << (endbit + 1);
@@ -173,17 +188,18 @@ bool CDataControl::isVaild()
         head = head | tail1;
         *p2 = (*p2) & head;
         *p2 = (*p2)|(ret_int << beginbit);
+        mutex.unlock();
         break;
    //unsigned int
     case 1:
         ret_unint = inputstr.toUInt();
 
-        //32 uintÈİ´í,°´ÕÕÒÆÎ»²Ù×÷Îª0
+        //32 uintå®¹é”™,æŒ‰ç…§ç§»ä½æ“ä½œä¸º0
         if(bits == 32)
         {
             if(ret_unint > ((0x1 << 32)-1))
             {
-                qDebug()<<"32 UINT ÊıÖµÔ½½ç";
+                qDebug()<<"32 UINT err";
                 ret_unint = 0;
                 meaning = "UINT error";
                 ret = false;
@@ -196,7 +212,7 @@ bool CDataControl::isVaild()
         }
         else if(ret_unint > ((0x1<<(int)bits)-1) /*|| (ret_unint < 0)*/)
         {
-            qDebug()<<"UINT ÊıÖµÔ½½ç";
+            qDebug()<<"UINT error";
             ret_unint = 0;
             meaning = "UINT error";
             ret = false;
@@ -208,6 +224,7 @@ bool CDataControl::isVaild()
         }
         updateStyle(meaning);
 
+        mutex.lock();
         p = (unsigned int *)intputdata + offset;
         head = (0x1 <<(32 - endbit - 1)) - 1;
         head = head << (endbit + 1);
@@ -216,14 +233,15 @@ bool CDataControl::isVaild()
         head = head | tail1;
         *p = (*p) & head;
         *p = (*p)|(ret_unint << beginbit);
+        mutex.unlock();
         break;
 
    //float
     case 3:
         if(bits != 32)
         {
-            qDebug()<<"FLOAT Î»Êı´íÎó";
-            meaning = "FloatÔ½½ç";
+            qDebug()<<"FLOAT ä½æ•°é”™è¯¯";
+            meaning = "Floatè¶Šç•Œ";
             emit updateMeaning(meaning);
             ret = false;
         }
@@ -232,9 +250,11 @@ bool CDataControl::isVaild()
             ret = true;
         }
         ret_float = inputstr.toFloat();
+
+        mutex.lock();
         pf = (float *)intputdata + offset;
         *pf = ret_float;
-
+        mutex.unlock();
         break;
     }
 
@@ -242,7 +262,7 @@ bool CDataControl::isVaild()
 }
 
 void* CDataControl::getIntputdata()
-{
+{       
     return intputdata;
 }
 

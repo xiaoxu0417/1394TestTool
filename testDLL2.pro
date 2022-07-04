@@ -23,11 +23,13 @@ SOURCES += \
     processthread.cpp
 
 HEADERS += \
+    Break.h \
     TreeWidgetItemEx.h \
     cdatacontrol.h \
     def.h \
     mainwindow.h \
-    processthread.h
+    processthread.h \
+    vmc_def.h
 
 FORMS += \
     mainwindow.ui
@@ -37,7 +39,8 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-win32: LIBS += -L$$PWD/./ -lConsoleApplication1
+
+win32: LIBS += -L$$PWD/./ -lvmc_api
 
 INCLUDEPATH += $$PWD/.
 DEPENDPATH += $$PWD/.

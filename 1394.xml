@@ -1,56 +1,235 @@
 <?xml version="1.0" encoding = "UTF-8"?>
 <DataBase>
     <ICD type="input">
-		<SYS sysname = "oil">
-			<field uiBitBegin="0" uiBitEnd="0" stFieldName="气压高度表决值有效字" stByteOffset="0000" dataType="UINT" >
+		<SYS sysname = "break">
+			<field uiBitBegin="0" uiBitEnd="0" stFieldName="RIU3输出状态" stByteOffset="0000" dataType="UINT" >
 				<mean strMean="无效" strValue="0"/>
 				<mean strMean="有效" strValue="1"/>
 			</field>
-			<field uiBitBegin="1" uiBitEnd="1" stFieldName="升降速度表决值有效字" stByteOffset="0000" dataType="UINT" >
+			<field uiBitBegin="1" uiBitEnd="1" stFieldName="RIU3与BCUA通道通讯故障" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="2" uiBitEnd="2" stFieldName="RIU3通道刹车故障" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="3" uiBitEnd="3" stFieldName="RIU3防滑故障" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="4" uiBitEnd="4" stFieldName="RIU3起飞线刹车失效" stByteOffset="0000" dataType="UINT" >
 				<mean strMean="无效" strValue="0"/>
 				<mean strMean="有效" strValue="1"/>
 			</field>
-			<field uiBitBegin="2" uiBitEnd="31" stFieldName="油量" stByteOffset="0000" dataType="UINT" >
+			<field uiBitBegin="5" uiBitEnd="5" stFieldName="RIU3通道起飞线刹车状态" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
-			<field uiBitBegin="0" uiBitEnd="15" stFieldName="温度1" stByteOffset="0001" dataType="SINT" >
+			<field uiBitBegin="6" uiBitEnd="6" stFieldName="RIU3通道牵引刹车状态" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
-			<field uiBitBegin="16" uiBitEnd="31" stFieldName="温度2" stByteOffset="0001" dataType="SINT" >
+			<field uiBitBegin="7" uiBitEnd="7" stFieldName="RIU3通道刹车无防滑状态" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
-			<field uiBitBegin="0" uiBitEnd="31" stFieldName="高度" stByteOffset="0002" dataType="UINT" >
-				<mean strMean="未工作" strValue="0"/>
-				<mean strMean="高档位" strValue="1"/>
-				<mean strMean="中档位" strValue="2"/>
-				<mean strMean="低档位" strValue="3"/>
-				<mean strMean="正常" strValue="4"/>
+			<field uiBitBegin="8" uiBitEnd="8" stFieldName="RIU3静默模式" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
+			<field uiBitBegin="9" uiBitEnd="9" stFieldName="RIU3另一通道刹车故障" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="10" uiBitEnd="10" stFieldName="RIU3刹车控制开关" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="11" uiBitEnd="11" stFieldName="RIU3维护bit" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="12" uiBitEnd="31" stFieldName="备份" stByteOffset="0000" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="7" stFieldName="RIU3左伺服阀主通道输出电流" stByteOffset="0001" dataType="UINT" >
+			</field>
+			<field uiBitBegin="8" uiBitEnd="15" stFieldName="RIU3左伺服阀备通道输出电流" stByteOffset="0001" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="23" stFieldName="RIU3右伺服阀主通道输出电流" stByteOffset="0001" dataType="UINT" >
+			</field>
+			<field uiBitBegin="24" uiBitEnd="31" stFieldName="RIU3右伺服阀备通道输出电流" stByteOffset="0001" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="RIU3左刹车轮速" stByteOffset="0002" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="RIU3右刹车轮速" stByteOffset="0002" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="RIU3左刹车指令" stByteOffset="0003" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="RIU3右刹车指令" stByteOffset="0003" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="RIU3左刹车压力" stByteOffset="0004" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="RIU3右刹车压力" stByteOffset="0004" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="0" stFieldName="RIU4输出状态" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="1" uiBitEnd="1" stFieldName="RIU4与BCUA通道通讯故障" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="2" uiBitEnd="2" stFieldName="RIU4通道刹车故障" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="3" uiBitEnd="3" stFieldName="RIU4防滑故障" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="4" uiBitEnd="4" stFieldName="RIU4起飞线刹车失效" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="5" uiBitEnd="5" stFieldName="RIU4通道起飞线刹车状态" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="6" uiBitEnd="6" stFieldName="RIU4通道牵引刹车状态" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="7" uiBitEnd="7" stFieldName="RIU4通道刹车无防滑状态" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="8" uiBitEnd="8" stFieldName="RIU4静默模式" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="9" uiBitEnd="9" stFieldName="RIU4另一通道刹车故障" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="10" uiBitEnd="10" stFieldName="RIU4刹车控制开关" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="11" uiBitEnd="11" stFieldName="RIU4维护bit" stByteOffset="0005" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="12" uiBitEnd="31" stFieldName="备份" stByteOffset="0005" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="7" stFieldName="RIU4左伺服阀主通道输出电流" stByteOffset="0006" dataType="UINT" >
+			</field>
+			<field uiBitBegin="8" uiBitEnd="15" stFieldName="RIU4左伺服阀备通道输出电流" stByteOffset="0006" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="23" stFieldName="RIU4右伺服阀主通道输出电流" stByteOffset="0006" dataType="UINT" >
+			</field>
+			<field uiBitBegin="24" uiBitEnd="31" stFieldName="RIU4伺服阀备通道输出电流" stByteOffset="0006" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="RIU4左刹车轮速" stByteOffset="0007" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="RIU4右刹车轮速" stByteOffset="0007" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="RIU4左刹车指令" stByteOffset="0008" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="RIU4右刹车指令" stByteOffset="0008" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="RIU4左刹车压力" stByteOffset="0009" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="RIU4右刹车压力" stByteOffset="0009" dataType="UINT" >
+			</field>
+			
+			
 		</SYS>
 		
-		<SYS sysname = "ac">
-			<field uiBitBegin="0" uiBitEnd="0" stFieldName="偏航角表决值有效字" stByteOffset="0001" dataType="UINT" >
-				<mean strMean="无效" strValue="0"/>
-				<mean strMean="有效" strValue="1"/>
-			</field>
-			<field uiBitBegin="1" uiBitEnd="1" stFieldName="俯仰角表决值有效字" stByteOffset="0001" dataType="UINT" >
-				<mean strMean="无效" strValue="0"/>
-				<mean strMean="有效" strValue="1"/>
-			</field>
-		</SYS>
 	</ICD>
 	
 	<ICD type="output">
-		<SYS sysname = "fire">
-			<field uiBitBegin="0" uiBitEnd="0" stFieldName="气压高度表决值有效字" stByteOffset="0000" dataType="UINT" >
+		<SYS sysname = "break">
+			<field uiBitBegin="0" uiBitEnd="0" stFieldName="刹车数据有效" stByteOffset="0000" dataType="UINT" >
 				<mean strMean="无效" strValue="0"/>
 				<mean strMean="有效" strValue="1"/>
 			</field>
-			<field uiBitBegin="1" uiBitEnd="16" stFieldName="气压高度1" stByteOffset="0000" dataType="UINT" >
+			<field uiBitBegin="1" uiBitEnd="1" stFieldName="起飞线刹车失效" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
 			</field>
-			<field uiBitBegin="17" uiBitEnd="31" stFieldName="气压高度2" stByteOffset="0000" dataType="UINT" >
+			<field uiBitBegin="2" uiBitEnd="2" stFieldName="刹车故障" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
 			</field>
-			<field uiBitBegin="0" uiBitEnd="31" stFieldName="引起压力" stByteOffset="0001" dataType="SINT" >
+			<field uiBitBegin="3" uiBitEnd="3" stFieldName="防滑故障" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
 			</field>
-			<field uiBitBegin="0" uiBitEnd="31" stFieldName="表决值" stByteOffset="0002" dataType="FLOAT" >
-				<mean strMean="大于100小于200" strValue="0"/>				
+			<field uiBitBegin="4" uiBitEnd="4" stFieldName="维护BIT状态" stByteOffset="0000" dataType="UINT" >
+			</field>
+			<field uiBitBegin="5" uiBitEnd="5" stFieldName="起飞线刹车" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="6" uiBitEnd="6" stFieldName="牵引刹车" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="7" uiBitEnd="7" stFieldName="刹车无防滑" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="8" uiBitEnd="8" stFieldName="刹车余度降低" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="正常" strValue="0"/>
+				<mean strMean="故障" strValue="1"/>
+			</field>
+			<field uiBitBegin="9" uiBitEnd="9" stFieldName="左刹车有压力" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="10" uiBitEnd="10" stFieldName="右刹车有压力" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="无效" strValue="0"/>
+				<mean strMean="有效" strValue="1"/>
+			</field>
+			<field uiBitBegin="11" uiBitEnd="11" stFieldName="牵引刹车指令（PIU指令）" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="断开" strValue="0"/>
+				<mean strMean="接通" strValue="1"/>
+			</field>
+			<field uiBitBegin="12" uiBitEnd="12" stFieldName="刹车控制（起飞线刹车）" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="断开" strValue="0"/>
+				<mean strMean="接通" strValue="1"/>
+			</field>
+			<field uiBitBegin="13" uiBitEnd="13" stFieldName="刹车控制（防滑刹车）" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="断开" strValue="0"/>
+				<mean strMean="接通" strValue="1"/>
+			</field>
+			<field uiBitBegin="14" uiBitEnd="14" stFieldName="刹车控制（无防滑刹车）" stByteOffset="0000" dataType="UINT" >
+				<mean strMean="断开" strValue="0"/>
+				<mean strMean="接通" strValue="1"/>
+			</field>
+			<field uiBitBegin="15" uiBitEnd="31" stFieldName="备份" stByteOffset="0000" dataType="UINT" >
+
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="左轮速度" stByteOffset="0001" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="右轮速度" stByteOffset="0001" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="15" stFieldName="左刹车指令" stByteOffset="0002" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="31" stFieldName="右刹车指令" stByteOffset="0002" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="7" stFieldName="左伺服阀主通道输出电流" stByteOffset="0003" dataType="UINT" >
+			</field>
+			<field uiBitBegin="8" uiBitEnd="15" stFieldName="左伺服阀备通道输出电流" stByteOffset="0003" dataType="UINT" >
+			</field>
+			<field uiBitBegin="16" uiBitEnd="23" stFieldName="右伺服阀主通道输出电流" stByteOffset="0003" dataType="UINT" >
+			</field>
+			<field uiBitBegin="24" uiBitEnd="31" stFieldName="右伺服阀备通道输出电流" stByteOffset="0003" dataType="UINT" >
+			</field>
+			<field uiBitBegin="0" uiBitEnd="7" stFieldName="左刹车压力" stByteOffset="0004" dataType="UINT" >
+			</field>
+			<field uiBitBegin="8" uiBitEnd="15" stFieldName="右刹车压力" stByteOffset="0004" dataType="UINT" >
 			</field>
 		</SYS>
 	</ICD>

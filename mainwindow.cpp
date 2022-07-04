@@ -1,10 +1,7 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-extern "C"
-{
-    #include "dll.h"
-}
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -12,30 +9,27 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+
     inputword = 0;
     bUseCounting = false;
     m_period = 12.5;
-    ConstantTarget = 0;
+    ConstantTarget = 0;    
 
-    initUI();
-
+    //创建计时器
     countTimer = new QTimer(this);
     countTimer->setInterval(1000);
-    connect(countTimer,&QTimer::timeout,this,&MainWindow::doTimerService);
-    //ui->lcdNumber_counting->setStyleSheet(QLCDNumber{color: red});
-    ui->lcdNumber_counting->setFont(QFont("Times",12,QFont::Black));
 
+    //创建周期执行dll线程
+    mProThread = new ProcessThread();
+
+    //载入输入输出treewidget
     loadxml();
+
+    //设置UI状态
+    initUI();
 
     //绑定槽函数
     connectWidget();
-
-    mProThread = new ProcessThread();
-    connect(this,SIGNAL(newInputdata2Proce()),mProThread,SLOT(getNewInpoputData()));
-    //connect(mProThread,SIGNAL(updateCount(QString)),ui->labelCount,SLOT(setText(QString)));
-    connect(mProThread,SIGNAL(updateCount(QString,bool)),this,SLOT(on_updatelabelcount(QString,bool)));
-
-    mProThread->start();
 }
 
 MainWindow::~MainWindow()
@@ -150,6 +144,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
 
             connect(Ctl,SIGNAL(updateMeaning(QString)),LabelMeaning,SLOT(setText(QString)));
             connect(Ctl,SIGNAL(updateMeaningstyle(QString)),LabelMeaning,SLOT(setStyleSheet(QString)));
+            connect(Ctl,SIGNAL(updateDllInPutdata()),mProThread,SLOT(getNewInpoputData()));
             //输入
             if(pItem->getB_io())
             {
@@ -287,6 +282,7 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
 
 void MainWindow::connectWidget()
 {
+    connect(countTimer,&QTimer::timeout,this,&MainWindow::doTimerService);
     //新语法
     QObject::connect(ui->inputtreeWidget, &QTreeWidget::itemChanged, this, &MainWindow::onItemChanged_In);
     //旧语法
@@ -294,6 +290,8 @@ void MainWindow::connectWidget()
 
     connect(ui->outputtreeWidget, &QTreeWidget::itemChanged, this, &MainWindow::onItemChanged_In);
 
+    connect(this,SIGNAL(newInputdata2Proce()),mProThread,SLOT(getNewInpoputData()));
+    connect(mProThread,SIGNAL(updateCount(QString,bool)),this,SLOT(on_updatelabelcount(QString,bool)));
 }
 
 //
@@ -313,7 +311,7 @@ void MainWindow::doTimerService()
 
     QString strTime = QString("%1:%2:%3").arg(ulHour,2, 10, QChar('0')).arg(ulMinute,2, 10, QChar('0') ).arg(ulSecond,2, 10, QChar('0'));
     ui->lcdNumber_counting->display(strTime);
-    qDebug()<<m_iTestTime;
+    //qDebug()<<count;
 
 }
 
@@ -426,6 +424,7 @@ void MainWindow::loadxml()
                             if(stByteOffset.toInt() + 1 > inputword)
                             {
                                 inputword = stByteOffset.toInt() + 1;
+                                CDataControl::setDatalength(inputword);
                             }
                         }
                     }
@@ -544,6 +543,7 @@ void MainWindow::updateTreeView(bool in,QList<int> List)
 
 void MainWindow::initUI()
 {
+    ui->lcdNumber_counting->setFont(QFont("Times",12,QFont::Black));
     if(bUseCounting)
     {
         ui->checkBox->setCheckState(Qt::Checked);
@@ -558,6 +558,7 @@ void MainWindow::initUI()
 
 void MainWindow::on_checkBox_stateChanged(int arg1)
 {
+    //true 勾选;false 非勾选
     bUseCounting = arg1 == 2?true:false;
     //qDebug() <<bUseCounting <<" "<< arg1;
     if(bUseCounting)
@@ -593,6 +594,11 @@ void MainWindow::on_pushButton_process_clicked()
 //        qDebug()<<"输入"<<data.e1;
 //    }
 
+    if(!mProThread->isRunning())
+    {
+        mProThread->start();
+    }
+
     mProThread->setBRun(true);
     mProThread->setTimeCount(0);
 
@@ -623,8 +629,19 @@ void MainWindow::on_pushButton_process_clicked()
     ui->checkBox_Constant->setEnabled(false);//开始运行后,不允许修改持续状态
 }
 
+//结束按钮
 void MainWindow::on_pushButton_stop_process_clicked()
 {
+    if(bUseCounting)
+    {
+        if(countTimer->isActive())
+        {
+            countTimer->stop();
+
+            //恢复开始计时按钮
+            ui->pushButton_start_counting->setEnabled(true);
+        }
+    }
     mProThread->setBRun(false);
     if(!mProThread->getBConstant())
     {
