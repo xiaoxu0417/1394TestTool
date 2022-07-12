@@ -60,10 +60,14 @@ public:
 
     void setCountView(bool vaild);
 
+    //找到指定位数的ctrl 类,若没有则创建
+    CDataControl* findCtrl(int start,int end, int offset,int datatype,bool m_io, int length, QMap <int,QString> meaning,bool *isnew);
+
 signals:
     void ClearAllData();
     void ClearAllData(QString);
     void newInputdata2Proce();
+    void LoadData(QVariant);
     //void running();
 
 private slots:
@@ -120,6 +124,7 @@ private:
 
     QList <int>inputTag;
     QList <int>outputTag;
+    QList <CDataControl*> CtrlList;
 
     float m_period;
     unsigned int ConstantTarget;

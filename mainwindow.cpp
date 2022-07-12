@@ -139,27 +139,37 @@ void MainWindow::onItemChanged_In(QTreeWidgetItem *item, int cloumn)
             QLineEdit *LineEdit = new QLineEdit(ui->inputlistWidget);
             LineEdit->setText("0");
 
+            bool isnew = false;
             //绑定每个lineEdit的槽函数
-            CDataControl *Ctl = new CDataControl(pItem->getBitbegin(),pItem->getBitend(),pItem->getOffset(),pItem->getDatatype(),pItem->getB_io(),inputword,pItem->getMeaningMap());
+            //CDataControl *Ctl = new CDataControl(pItem->getBitbegin(),pItem->getBitend(),pItem->getOffset(),pItem->getDatatype(),pItem->getB_io(),inputword,pItem->getMeaningMap());
+            CDataControl *Ctl = findCtrl(pItem->getBitbegin(),pItem->getBitend(),pItem->getOffset(),pItem->getDatatype(),pItem->getB_io(),inputword,pItem->getMeaningMap(),&isnew);
 
-            connect(Ctl,SIGNAL(updateMeaning(QString)),LabelMeaning,SLOT(setText(QString)));
-            connect(Ctl,SIGNAL(updateMeaningstyle(QString)),LabelMeaning,SLOT(setStyleSheet(QString)));
-            connect(Ctl,SIGNAL(updateDllInPutdata()),mProThread,SLOT(getNewInpoputData()));
-            //输入
-            if(pItem->getB_io())
+            if(isnew)
             {
-                connect(LineEdit,SIGNAL(textChanged(QString)),Ctl,SLOT(slot_onInputDataChange(QString)));
-                connect(LineEdit,SIGNAL(editingFinished()),Ctl,SLOT(slot_onInputDataFinished()));
-                connect(this,SIGNAL(ClearAllData()),Ctl,SLOT(slot_clearalldata()));
-                connect(this,SIGNAL(ClearAllData(QString)),LineEdit,SLOT(setText(QString)));//清除
+                connect(Ctl,SIGNAL(updateMeaning(QString)),LabelMeaning,SLOT(setText(QString)));
+                connect(Ctl,SIGNAL(updateMeaningstyle(QString)),LabelMeaning,SLOT(setStyleSheet(QString)));
+                connect(Ctl,SIGNAL(updateDllInPutdata()),mProThread,SLOT(getNewInputDataFromUI()));
+                //输入
+                if(pItem->getB_io())
+                {
+                    connect(LineEdit,SIGNAL(textChanged(QString)),Ctl,SLOT(slot_onInputDataChange(QString)));
+                    connect(LineEdit,SIGNAL(editingFinished()),Ctl,SLOT(slot_onInputDataFinished()));
+                    connect(this,SIGNAL(ClearAllData()),Ctl,SLOT(slot_clearalldata()));
+                    connect(this,SIGNAL(ClearAllData(QString)),LineEdit,SLOT(setText(QString)));//清除
 
-                connect(Ctl,SIGNAL(updateLineEdit(QString)),LineEdit,SLOT(setText(QString)));
+                    connect(Ctl,SIGNAL(updateLineEdit(QString)),LineEdit,SLOT(setText(QString)));
+                    connect(this,SIGNAL(LoadData(QVariant)),Ctl,SLOT(slot_onLoadInputData(QVariant)));//从ini load 数据时更新每个data ctrl
+                }
+                else//输出数据,不可编辑
+                {
+                    connect(Ctl,SIGNAL(testsetOutPutdata(QString)),LineEdit,SLOT(setText(QString)));//显示输出数据
+                    connect(mProThread,SIGNAL(running(QVariant)),Ctl,SLOT(slot_updateOutputData(QVariant)));//每拍发出running信号,去更新输出数据的值
+                    LineEdit->setEnabled(false);
+                }
             }
-            else//输出数据,不可编辑
+            else
             {
-                connect(Ctl,SIGNAL(testsetOutPutdata(QString)),LineEdit,SLOT(setText(QString)));//显示输出数据
-                connect(mProThread,SIGNAL(running(QVariant)),Ctl,SLOT(slot_updateOutputData(QVariant)));//每拍发出running信号,去更新输出数据的值
-                LineEdit->setEnabled(false);
+                Ctl->updateInputUIFormIni();
             }
 
             //创建水平布局
@@ -290,8 +300,11 @@ void MainWindow::connectWidget()
 
     connect(ui->outputtreeWidget, &QTreeWidget::itemChanged, this, &MainWindow::onItemChanged_In);
 
-    connect(this,SIGNAL(newInputdata2Proce()),mProThread,SLOT(getNewInpoputData()));
+    connect(this,SIGNAL(newInputdata2Proce()),mProThread,SLOT(getNewInputDataFromUI()));
     connect(mProThread,SIGNAL(updateCount(QString,bool)),this,SLOT(on_updatelabelcount(QString,bool)));
+
+    connect(this,SIGNAL(LoadData(QVariant)),mProThread,SLOT(getNewInputDataFromIni(QVariant)));
+
 }
 
 //
@@ -510,13 +523,16 @@ void MainWindow::loadxml()
 
 void MainWindow::updateTreeView(bool in,QList<int> List)
 {
+    qDebug()<<"1"<<in;
     if (in)
     {
+        qDebug()<<"2";
         QTreeWidgetItemIterator it(ui->inputtreeWidget);
         while (*it) {
             TreeWidgetItemEx *pItem = dynamic_cast<TreeWidgetItemEx*>(*it);
             if(List.contains(pItem->getNo()))
             {
+                qDebug()<<"4"<<pItem->getNo();
                 (*it)->setCheckState(0,Qt::Checked);
                 qDebug() << (*it)->text(0);
             }
@@ -580,20 +596,6 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
 
 void MainWindow::on_pushButton_process_clicked()
 {
-//    //获取输入输出
-//    void *p = CDataControl::getIntputdata();
-//    struct testdata data;
-//    memset(&data,0x0,sizeof(data));
-//    if(!p)
-//    {
-//        qDebug()<<"process no data";
-//    }
-//    else
-//    {
-//        memcpy(&data,p,sizeof(int)*inputword);
-//        qDebug()<<"输入"<<data.e1;
-//    }
-
     if(!mProThread->isRunning())
     {
         mProThread->start();
@@ -744,17 +746,30 @@ void MainWindow::on_SaveTarg_clicked()
     }
 #else
     qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
+    qRegisterMetaTypeStreamOperators<Input_vmc>("Input_vmc");
 
     //保存当前选项
     QString filter ="(*.ini)";
     QString aFileName = QFileDialog::getSaveFileName(this, tr("保存配置"), "./ini/in/", tr("(*.ini)"),&filter/*,QFileDialog::DontUseNativeDialog*/);//若不存在文件，则创建
 
-    qDebug()<<"保存文件"<<aFileName;
+    qDebug()<<"save list"<<aFileName<<inputTag;
     QSettings settings(aFileName, QSettings:: IniFormat);
+    //保存输入数据的tag list
     settings.setValue("data", QVariant::fromValue(inputTag));
+    //保存输入数据的真实值
+
+    unsigned int *p = (unsigned int *)CDataControl::getIntputdata();
+    for(int i =0;i <sizeof(Input_vmc)/sizeof (unsigned int);i++)
+    {
+        QString temp = "value" + QString::number(i);
+        settings.setValue(temp, QVariant::fromValue(*p));
+        p++;
+    }
+
 #endif
 }
 
+//load输入数据targ
 void MainWindow::on_LoadTarg_clicked()
 {
 #if 0
@@ -769,7 +784,27 @@ void MainWindow::on_LoadTarg_clicked()
     QString  aFileName=     QFileDialog::getOpenFileName(nullptr,tr("打开配置"),"./ini/in/","ini files (*.ini)",nullptr,QFileDialog::DontUseNativeDialog);
     QSettings settings(aFileName, QSettings:: IniFormat);
     QList<int> TargList = settings.value("data").value<QList<int> >();
-    qDebug()<<"打开list"<<TargList;
+
+    unsigned int *ret = (unsigned int *)malloc(sizeof(Input_vmc));
+    unsigned int *ret_index = ret;
+    memset(ret,0x0,sizeof(Input_vmc));
+
+    //取数据
+    for(int i =0;i <sizeof(Input_vmc)/sizeof (unsigned int);i++)
+    {
+        QString temp = "value" + QString::number(i);
+        unsigned int value = settings.value(temp).value<unsigned int>();
+        memcpy(ret_index,&value,sizeof (value));
+        //qDebug()<<value;
+        ret_index++;
+    }
+    Input_vmc *inret = (Input_vmc *)ret;
+    //将load的数据发给data ctrl,以及线程process
+    QVariant data;
+    data.setValue(*inret);
+    emit LoadData(data);
+
+    qDebug()<<"open list"<<TargList;
     if(!TargList.empty())
     {
         updateTreeView(true,TargList);
@@ -846,6 +881,25 @@ void MainWindow::setCountView(bool vaild)
 //        ui->labelCount->setText("0");
 //        ui->labelCount->setEnabled(true);
     }
+}
+
+CDataControl * MainWindow::findCtrl(int start, int end, int offset,int datatype,bool m_io, int length, QMap <int,QString> meaning,bool *isnew)
+{
+    for(int i=0; i<CtrlList.size(); ++i)
+    {
+        CDataControl * index = CtrlList.at(i);
+        if(index->getBeginbit() == start && index->getEndbit() == end && index->getOffset() == offset)
+        {
+            *isnew = false;
+            return index;
+        }
+    }
+    //没找到,则创建一个
+    CDataControl *Ctl = new CDataControl(start,end,offset,datatype,m_io,length,meaning);
+
+    CtrlList.append(Ctl);
+    *isnew = true;
+    return Ctl;
 }
 
 void MainWindow::on_checkBox_Constant_stateChanged(int arg1)

@@ -70,7 +70,7 @@ void ProcessThread::run()
     }
 }
 
-void ProcessThread::getNewInpoputData()
+void ProcessThread::getNewInputDataFromUI()
 {
     //调用接口前,获取输入数据,并拷贝到data中
     void *p = CDataControl::getIntputdata();
@@ -82,6 +82,13 @@ void ProcessThread::getNewInpoputData()
     {
         memcpy(&indata,p,sizeof(indata));
     }
+}
+
+//从配置文件获取输入数据
+void ProcessThread::getNewInputDataFromIni(QVariant var)
+{
+    Input_vmc in = var.value<Input_vmc>();
+    memcpy(&indata,&in,sizeof(indata));
 }
 
 bool ProcessThread::getConstantCountStart() const
@@ -116,6 +123,7 @@ void ProcessThread::Process()
     API_VMC_Process();
     outdata = API_VMC_Out(&len);
     msleep(8);//qt thread sleep
+    qDebug()<<indata.brk.riu3.left_wheel_speed;
 #endif
     //outdata出参
 

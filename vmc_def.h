@@ -1,13 +1,15 @@
 #ifndef _VMC_DEF_H_
 #define _VMC_DEF_H_
 #include "ics_type.h"
+#include <QDataStream>
+#include <iostream>
 #include <QVariant>
 #include <QMetaType>
 
 #pragma pack(push, 1)
 
 #ifndef NULL
-//#define NULL 0
+#define NULL 0
 #endif
 
 typedef struct  
@@ -112,7 +114,26 @@ typedef struct
 {
 	//刹车
 	InputBreak_t brk;//size 10 int
+//    QDataStream& operator >> (QDataStream& in, Input_vmc& P)
+//    {
+//        //in >> P.brk;
+//        return in;
+//    }
+
 }Input_vmc;
+
+struct Input_vmc2
+{
+    //刹车
+    InputBreak_t brk;//size 10 int
+//    QDataStream& operator >> (QDataStream& in, Input_vmc2& P)
+//    {
+//        return P;
+//    }
+};
+
+
+
 /*------------------------------------------------------
 VMC总输出
 */

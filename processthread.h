@@ -39,7 +39,8 @@ signals:
     void updateCount(QString,bool);//通知主窗口更新拍数
 
 private slots:
-    void getNewInpoputData();//获取新的输入数据
+    void getNewInputDataFromUI();//从输入窗口获取新的输入数据
+    void getNewInputDataFromIni(QVariant var);//从配置文件获取新的输入数据
 
 private:
     bool bRun;
